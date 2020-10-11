@@ -205,10 +205,11 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
 
   ########### START PLOTS ############
 
-  loli.plot <- function(result, color = "#0073C2"){
+  loli.plot <- function(result, ylabel, ylow, yhigh, color = "#0073C2"){
     x <- rownames(result)
     data <- result
     data[is.na(data)] = 0
+
     for(i in 1:ncol(result)) {
       y <- data[,i]
 
@@ -221,8 +222,10 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                 panel.border = element_blank(),
                 axis.ticks.x = element_blank()
               ) +
-              xlab("") +
-              ylab(colnames(data[i])))
+              ylim(ylow, yhigh) +
+              xlab(rownames(result)) +
+              ylab(ylabel)
+      )
     }
   }
 
@@ -252,10 +255,13 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
 
     #Plots all resulting graphs (if exist)
     if(exists("diversity.results")){
-      loli.plot(diversity.results, color)# default: lolipop
+
+      loli.plot(as.data.frame(diversity.results[,1]), "Species richess", 0, max(as.data.frame(diversity.results[,1])))
+      loli.plot(as.data.frame(diversity.results[,2]), "Shannon's diversity", 0, max(as.data.frame(diversity.results[,2])))
+      loli.plot(as.data.frame(diversity.results[,3]), "Evenness", 0, max(as.data.frame(diversity.results[,3])))
     }
     if(exists("biovol.val.result")){
-      loli.plot(biovol.val.result, color) # default: lolipop
+      loli.plot(as.data.frame(biovol.val.result[,1]), "Biovolume", 0, max(as.data.frame(biovol.val.result[,1])))
     }
     if(exists("numcloroplastos.result")){
       percentbarchart.plot(numcloroplastos.result, "Number of chloroplasts") #default: piled bars
@@ -287,32 +293,41 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     if(exists("vdamTrophic")){
       percentbarchart.plot(vdamTrophic, "Trophic state")
     }
+
     if(exists("ips.results")){
-      loli.plot(ips.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(ips.results[,1]), "IPS", 0, 10) #raw index
+      loli.plot(as.data.frame(ips.results[,2]), "IPS - Standardized", 0, 20) #standard 20
     }
     if(exists("tdi.results")){
-      loli.plot(tdi.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(tdi.results[,1]), "TDI - Standardized", 0, 20) #standard 20
+      loli.plot(as.data.frame(tdi.results[,2]), "TDI - %", 0, 100) #%
     }
     if(exists("idp.results")){
-      loli.plot(idp.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(idp.results[,1]), "IDP", 0, 10) #raw index
+      loli.plot(as.data.frame(idp.results[,2]), "IDP - Standardized", 0, 20) #standard 20
     }
     if(exists("epid.results")){
-      loli.plot(epid.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(epid.results[,1]), "EPID", 0, 10) #raw index
+      loli.plot(as.data.frame(epid.results[,2]), "EPID - Standardized", 0, 20) #standard 20
     }
     if(exists("idap.results")){
-      loli.plot(idap.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(idap.results[,1]), "IDAP", 0, 10) #raw index
+      loli.plot(as.data.frame(idap.results[,2]), "IDAP - Standardized", 0, 20) #standard 20
     }
     if(exists("idch.results")){
-      loli.plot(idch.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(idch.results[,1]), "IDCH", 0, 10) #raw index
+      loli.plot(as.data.frame(idch.results[,2]), "IDCH - Standardized", 0, 20) #standard 20
     }
     if(exists("lobo.results")){
-      loli.plot(lobo.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(lobo.results[,1]), "LOBO", 0, 10) #raw index
+      loli.plot(as.data.frame(lobo.results[,2]), "LOBO - Standardized", 0, 20) #standard 20
     }
     if(exists("sla.results")){
-      loli.plot(sla.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(sla.results[,1]), "SLA", 0, 10) #raw index
+      loli.plot(as.data.frame(sla.results[,2]), "SLA - Standardized", 0, 20) #standard 20
     }
     if(exists("spear.results")){
-      loli.plot(spear.results, color)# default: lolipop w/reference lines
+      loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 10) #raw index
     }
 
     # Close the pdf file

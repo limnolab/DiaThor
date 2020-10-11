@@ -236,7 +236,6 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2){
 
   #gets sample names
   sampleNames <- colnames(taxaIn[1:(lastcol-1)])
-  print("245")
   #CONVERT TO RELATIVE ABUNDANCE
   #Convert taxaIn sample data to Relative Abundance data
   if(isRelAb==FALSE){ #pass parameter when in function
@@ -255,7 +254,6 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2){
   }
   resultList <- list(as.data.frame(taxaInRA), as.data.frame(taxaIn), sampleNames, resultsPath)
   names(resultList) <- c("taxaInRA", "taxaIn", "sampleNames", "resultsPath")
-  print("258")
   return(resultList)
 
 }
