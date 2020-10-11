@@ -1,0 +1,28 @@
+Package: DiaThor
+Type: Package
+Title: DiaThor Calculates Ecological Information for Diatoms
+Version: 0.0.0.9000
+Authors@R: c(
+    person("María Mercedes", "Nicolosi Gelis", email = "mercedesnicolosi@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0001-6324-7930")),
+    person("María Belén", "Sathicq", email = "mbelen@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0002-3534-8950")),
+    person("Joaquín", "Cochero", email = "jcochero@ilpla.edu.ar", role = "cre", comment = c(ORCID = "0000-0003-3957-6819")))
+Maintainer: Joaquín Cochero <jcochero@ilpla.edu.ar>
+Description: Calculates ecological information and biotic indices for diatoms in a sample. It includes number/shape of chloroplasts
+    diversity indices (Shannon, Pielou, species richness), size classes, ecological guilds, and multiple biotic indices (refer to the documentation for details).
+    It outputs both a matrix with all the results and plots of all the obtained data in a defined output folder
+License: GNU General Public License
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Depends:
+    stringdist,
+    diatbarcode,
+    vegan,
+    ggplot2,
+    tidyr
+Remotes:
+    fkeck/diatbarcode
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
