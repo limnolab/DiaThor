@@ -55,6 +55,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   ips.results <- diat_ips(resultmat)
   tdi.results <- diat_tdi(resultmat)
   idp.results <- diat_idp(resultmat)
+  ilm.results <- diat_ilm(resultmat)
   #cee.results <- calculate_cee(resultmat)
   des.results <- diat_des(resultmat)
   epid.results <- diat_epid(resultmat)
@@ -91,6 +92,9 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                      if(exists("sla.results")){sla.results},
                      if(exists("spear.results")){spear.results}
                      ))
+    #removes the Precision columns
+    #singleTable[ , -which(names(singleTable) %in% "Precision")]
+    singleTable <- singleTable[ , -which(startsWith(names(singleTable),"Precision")) ]
 
     rownames(singleTable) <- sampleNames
   } else { #separate files for each result
@@ -104,6 +108,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                      if(exists("ips.results")){ips.results},
                      if(exists("tdi.results")){tdi.results},
                      if(exists("idp.results")){idp.results},
+                     if(exists("ilp.results")){idp.results},
                      if(exists("des.results")){des.results},
                      if(exists("epid.results")){epid.results},
                      if(exists("idap.results")){idap.results},
@@ -123,6 +128,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                          if(exists("ips.results")){"IPS index"},
                          if(exists("tdi.results")){"TDI index"},
                          if(exists("idp.results")){"IDP index"},
+                         if(exists("ilm.results")){"IDP index"},
                          if(exists("des.results")){"DES index"},
                          if(exists("epid.results")){"EPID index"},
                          if(exists("idap.results")){"IDAP index"},
@@ -150,7 +156,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   #EXPORT AS INTERNAL DATAFRAME
   if (exportFormat == 2) {
     if (singleResult == T) {
-      .GlobalEnv$Results <- singleTable
+      .GlobalEnv$DiaThor_Results <- singleTable
     } else {
       .GlobalEnv$Diversity <- as.data.frame(listOfTables[[1]])
       .GlobalEnv$ChloroplastNumber <- as.data.frame(listOfTables[[2]])
@@ -177,7 +183,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     if (singleResult == T) {
       filename = paste(exportName, " - Results", ".csv")
       write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
-      .GlobalEnv$Results <- singleTable
+      .GlobalEnv$DiaThor_Results <- singleTable
     } else {
       .GlobalEnv$Diversity <- as.data.frame(listOfTables[[1]])
       .GlobalEnv$ChloroplastNumber <- as.data.frame(listOfTables[[2]])
@@ -205,7 +211,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
 
   ########### START PLOTS ############
 
-  loli.plot <- function(result, ylabel, ylow, yhigh, color = "#0073C2"){
+  loli.plot <- function(result, ylabel, ylow, yhigh, samplenames, color = "#0073C2"){
     x <- rownames(result)
     data <- result
     data[is.na(data)] = 0
@@ -213,8 +219,8 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     for(i in 1:ncol(result)) {
       y <- data[,i]
 
-      print(ggplot2::ggplot(data, aes(x=x, y=y)) +
-              geom_segment( aes(x=x, xend=x, y=0, yend=y), color="grey") +
+      return(ggplot2::ggplot(data, aes(x=samplenames, y=y)) +
+              geom_segment( aes(x=samplenames, xend=samplenames, y=0, yend=y), color="grey") +
               geom_point( color=color, size=4) +
               theme_light() +
               theme(
@@ -223,7 +229,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                 axis.ticks.x = element_blank()
               ) +
               ylim(ylow, yhigh) +
-              xlab(rownames(result)) +
+              xlab("") +
               ylab(ylabel)
       )
     }
@@ -239,7 +245,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     result <- tidyr::gather(result) #uses tidyr to rearrange the dataframe in a single column
     result$sampleCol <- sampleCol #adds another column with the sample names
 
-    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F")
+    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D99", "#6EE2FF99", "#F7C53099", "#95CC5E99", "#D0DFE699", "#F79D1E99", "#748AA699")
 
     print(ggplot2::ggplot(result, aes(fill=key, y=value, x=sampleCol)) +
             geom_bar(position="fill", stat="identity") +
@@ -251,17 +257,17 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   result.plots.allToPDF <- function(color ="#0073C2"){
     print("Exporting all plots to PDF, please wait...")
     # Open a pdf file
-    pdf(paste(resultsPath, "\\", "ResultPlots.pdf", sep=""))
+    pdf(paste(resultsPath, "\\", "Plots2.pdf", sep=""))
 
     #Plots all resulting graphs (if exist)
     if(exists("diversity.results")){
 
-      loli.plot(as.data.frame(diversity.results[,1]), "Species richess", 0, max(as.data.frame(diversity.results[,1])))
-      loli.plot(as.data.frame(diversity.results[,2]), "Shannon's diversity", 0, max(as.data.frame(diversity.results[,2])))
-      loli.plot(as.data.frame(diversity.results[,3]), "Evenness", 0, max(as.data.frame(diversity.results[,3])))
+      print(loli.plot(as.data.frame(diversity.results[,1]), "Species richess", 0, max(as.data.frame(diversity.results[,1])), samplenames=rownames(diversity.results)))
+      print(loli.plot(as.data.frame(diversity.results[,2]), "Shannon's diversity", 0, max(as.data.frame(diversity.results[,2])), samplenames=rownames(diversity.results)))
+      print(loli.plot(as.data.frame(diversity.results[,3]), "Evenness", 0, max(as.data.frame(diversity.results[,3])), samplenames=rownames(diversity.results)))
     }
     if(exists("biovol.val.result")){
-      loli.plot(as.data.frame(biovol.val.result[,1]), "Biovolume", 0, max(as.data.frame(biovol.val.result[,1])))
+      print(loli.plot(as.data.frame(biovol.val.result[,1]), "Biovolume", 0, max(as.data.frame(biovol.val.result[,1])), samplenames=rownames(biovol.val.result)))
     }
     if(exists("numcloroplastos.result")){
       percentbarchart.plot(numcloroplastos.result, "Number of chloroplasts") #default: piled bars
@@ -295,39 +301,48 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     }
 
     if(exists("ips.results")){
-      loli.plot(as.data.frame(ips.results[,1]), "IPS", 0, 10) #raw index
-      loli.plot(as.data.frame(ips.results[,2]), "IPS - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(ips.results[,1]), "IPS", 0, 5, samplenames=rownames(ips.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(ips.results[,2]), "IPS - Standardized", 0, 20, samplenames=rownames(ips.results))) #standard 20
     }
     if(exists("tdi.results")){
-      loli.plot(as.data.frame(tdi.results[,1]), "TDI - Standardized", 0, 20) #standard 20
-      loli.plot(as.data.frame(tdi.results[,2]), "TDI - %", 0, 100) #%
+      print(loli.plot(as.data.frame(tdi.results[,1]), "TDI - Standardized", 0, 20, samplenames=rownames(tdi.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #standard 20. 0 = NA
+      print(loli.plot(as.data.frame(tdi.results[,2]), "TDI - %", 0, 100, samplenames=rownames(tdi.results))) #%
     }
     if(exists("idp.results")){
-      loli.plot(as.data.frame(idp.results[,1]), "IDP", 0, 10) #raw index
-      loli.plot(as.data.frame(idp.results[,2]), "IDP - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(idp.results[,1]), "IDP", 0, 4, samplenames=rownames(idp.results))) #raw index
+      print(loli.plot(as.data.frame(idp.results[,2]), "IDP - Standardized", 0, 20, samplenames=rownames(idp.results))) #standard 20
+    }
+    if(exists("ilm.results")){
+      print(loli.plot(as.data.frame(ilm.results[,1]), "ILM", 0, 5, samplenames=rownames(ilm.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(ilm.results[,2]), "ILM - Standardized", 0, 20, samplenames=rownames(ilm.results))) #standard 20
+    }
+    if(exists("des.results")){
+      print(loli.plot(as.data.frame(des.results[,1]), "DES", 0, 5, samplenames=rownames(des.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(des.results[,2]), "DES - Standardized", 0, 20, samplenames=rownames(des.results))) #standard 20
     }
     if(exists("epid.results")){
-      loli.plot(as.data.frame(epid.results[,1]), "EPID", 0, 10) #raw index
-      loli.plot(as.data.frame(epid.results[,2]), "EPID - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(epid.results[,1]), "EPID", 0, 4, samplenames=rownames(epid.results))) #raw index
+      print(loli.plot(as.data.frame(epid.results[,2]), "EPID - Standardized", 0, 20, samplenames=rownames(epid.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #standard 20. 0 = NA
     }
     if(exists("idap.results")){
-      loli.plot(as.data.frame(idap.results[,1]), "IDAP", 0, 10) #raw index
-      loli.plot(as.data.frame(idap.results[,2]), "IDAP - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(idap.results[,1]), "IDAP", 0, 5, samplenames=rownames(idap.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(idap.results[,2]), "IDAP - Standardized", 0, 20, samplenames=rownames(idap.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #standard 20. 0 = NA
     }
     if(exists("idch.results")){
-      loli.plot(as.data.frame(idch.results[,1]), "IDCH", 0, 10) #raw index
-      loli.plot(as.data.frame(idch.results[,2]), "IDCH - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(idch.results[,1]), "IDCH", 0, 8, samplenames=rownames(idch.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(idch.results[,2]), "IDCH - Standardized", 0, 20, samplenames=rownames(idch.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #standard 20. 0 = NA
     }
     if(exists("lobo.results")){
-      loli.plot(as.data.frame(lobo.results[,1]), "LOBO", 0, 10) #raw index
-      loli.plot(as.data.frame(lobo.results[,2]), "LOBO - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(lobo.results[,1]), "LOBO", 0, 4, samplenames=rownames(lobo.results))+ geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #raw index. 0 = NA
+      print(loli.plot(as.data.frame(lobo.results[,2]), "LOBO - Standardized", 0, 20, samplenames=rownames(lobo.results))) #standard 20
     }
     if(exists("sla.results")){
-      loli.plot(as.data.frame(sla.results[,1]), "SLA", 0, 10) #raw index
-      loli.plot(as.data.frame(sla.results[,2]), "SLA - Standardized", 0, 20) #standard 20
+      print(loli.plot(as.data.frame(sla.results[,1]), "SLA", 0, 4, samplenames=rownames(sla.results))) #raw index
+      print(loli.plot(as.data.frame(sla.results[,2]), "SLA - Standardized", 0, 20, samplenames=rownames(sla.results)) + geom_hline(yintercept=1, linetype="dashed", color = "darkgray", size=1)) #standard 20. 0 = NA
     }
+
     if(exists("spear.results")){
-      loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 10) #raw index
+      print(loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 1, samplenames=rownames(spear.results))) #raw index
     }
 
     # Close the pdf file
@@ -341,8 +356,5 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   }
 
   ########### END PLOTS ############
-
-
-
 
 }

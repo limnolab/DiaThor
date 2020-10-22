@@ -24,7 +24,7 @@ diat_ips <- function(resultLoad){
   print("Calculating IPS index")
   #creates results dataframe
   ips.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(ips.results) <- c("IPS", "IPS20", "IPS Taxa used")
+  colnames(ips.results) <- c("IPS", "IPS20", "Precision")
   #finds the column
   ips_s <- (taxaIn[,"ipss"])
   ips_vv <- (taxaIn[,"ipsvv"])
@@ -38,13 +38,23 @@ diat_ips <- function(resultLoad){
     ips_vv[is.na(ips_vv)] = 0
     IPS <- sum((taxaIn[,sampleNumber]*as.double(ips_s)*as.double(ips_vv)))/sum(taxaIn[,sampleNumber]*as.double(ips_vv)) #raw value
     IPS20 <- (IPS*4.75)-3.75 #STANDARDIZED VALUE TO 20
-    ips.results[sampleNumber, ] <- c(IPS, IPS20,IPStaxaused)
+    ips.results[sampleNumber, ] <- c(IPS, IPS20, IPStaxaused)
+
     #update progressbar
     setTxtProgressBar(pb, sampleNumber)
   }
   #close progressbar
   close(pb)
   #######--------IPS INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, ips.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="ips.results$Precision"] <- "IPS"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(ips.results) <- resultLoad[[3]]
   return(ips.results)
 }
 
@@ -82,7 +92,7 @@ diat_tdi <- function(resultLoad){
   print("Calculating TDI index")
   #creates results dataframe
   tdi.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(tdi.results) <- c("TDI20", "TDI100", "TDI Taxa used")
+  colnames(tdi.results) <- c("TDI20", "TDI100", "Precision")
   #finds the column
   tdi_s <- (taxaIn[,"kellys"])
   tdi_vv <- (taxaIn[,"kellyv"])
@@ -104,6 +114,15 @@ diat_tdi <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------TDI INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, tdi.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="tdi.results$Precision"] <- "TDI"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(tdi.results) <- resultLoad[[3]]
   return(tdi.results)
 }
 
@@ -130,20 +149,21 @@ diat_idp <- function(resultLoad){
   #Loads the species list specific for this index
   #idpDB <- read.csv("../Indices/idp.csv") #uses the external csv file
   idpDB <- DiaThor::idp
-  idpDB2 <- idpDB
-  idpDB <- idpDB
 
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+  #if acronyms exist, use them, its more precise
+  #if there is an acronym column, it removes it and stores it for later
   #exact matches species in input data to acronym from index
-  taxaIn$idp_v <- idpDB$idp_v[match(taxaIn$acronym, trimws(idpDB$acronym))]
+  taxaIn$idp_v <- idpDB$idp_v[match(trimws(taxaIn$acronym), trimws(idpDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$idp_v[i])){
-      taxaIn$idp_v[i] <- idpDB$idp_v[match(taxaIn$species[i], trimws(idpDB$fullspecies))]
+      taxaIn$idp_v[i] <- idpDB$idp_v[match(trimws(rownames(taxaIn[i,])), trimws(idpDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
 
 
   #gets the column named "species", everything before that is a sample
@@ -152,7 +172,7 @@ diat_idp <- function(resultLoad){
   #######--------IDP INDEX START --------#############
   print("Calculating IDP index")
   idp.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(idp.results) <- c("IDP", "IDP20", "IDP Taxa used")
+  colnames(idp.results) <- c("IDP", "IDP20", "Precision")
   #finds the column
   idp_v <- (taxaIn[,"idp_v"])
   #PROGRESS BAR
@@ -172,6 +192,15 @@ diat_idp <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------IDP INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, idp.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="idp.results$Precision"] <- "IDP"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(idp.results) <- resultLoad[[3]]
   return(idp.results)
 }
 
@@ -203,7 +232,7 @@ diat_cee <- function(resultLoad){
   #######--------CEE INDEX START --------#############
   print("Calculating CEE index")
   cee.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(cee.results) <- c("CEE", "CEE20", "CEE Taxa used")
+  colnames(cee.results) <- c("CEE", "CEE20", "Precision")
   #finds the column
   cee_v <- (taxaIn[,"cee_v"])
   #PROGRESS BAR
@@ -223,6 +252,15 @@ diat_cee <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------CEE INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, cee.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="cee.results$Precision"] <- "CEE"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(cee.results) <- resultLoad[[3]]
   return(cee.results)
 }
 
@@ -248,20 +286,24 @@ diat_des <- function(resultLoad){
   #Loads the species list specific for this index
   #desDB <- read.csv("../Indices/des.csv") #uses the external csv file
   desDB <- DiaThor::des
+
+  ##NEWEST CORRECTIONS
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+  #if acronyms exist, use them, its more precise
+
   #exact matches species in input data to acronym from index
   taxaIn$des_v <- desDB$des_v[match(taxaIn$acronym, trimws(desDB$acronym))]
   taxaIn$des_s <- desDB$des_s[match(taxaIn$acronym, trimws(desDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$des_s[i]) | is.na(taxaIn$des_v[i])){
-      taxaIn$des_v[i] <- desDB$des_v[match(taxaIn$species[i], trimws(desDB$fullspecies))]
-      taxaIn$des_s[i] <- desDB$des_s[match(taxaIn$species[i], trimws(desDB$fullspecies))]
-      #taxaIn$des_v[i] <- desDB$des_v[match(row.names(taxaIn[i,]), trimws(desDB$fullspecies))]
-      #taxaIn$des_s[i] <- desDB$des_s[match(row.names(taxaIn[i,]), trimws(desDB$fullspecies))]
+      taxaIn$des_v[i] <- desDB$des_v[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
+      taxaIn$des_s[i] <- desDB$des_s[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
     }
   }
+
   ### FINISH NEW CORRECTIONS
 
   #removes NA from taxaIn
@@ -274,7 +316,7 @@ diat_des <- function(resultLoad){
   print("Calculating DES index")
   #creates results dataframe
   des.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(des.results) <- c("DES", "DES20", "DES Taxa used")
+  colnames(des.results) <- c("DES", "DES20", "Precision")
   #finds the column
   des_s <- (taxaIn[,"des_s"])
   des_v <- (taxaIn[,"des_v"])
@@ -296,6 +338,15 @@ diat_des <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------DES INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, des.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="des.results$Precision"] <- "DES"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(des.results) <- resultLoad[[3]]
   return(des.results)
 }
 
@@ -315,23 +366,25 @@ diat_epid <- function(resultLoad){
   }
 
   taxaIn <- resultLoad[[2]] #input data
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #epidDB <- read.csv("../Indices/epid.csv") #uses the external csv file
   epidDB <- DiaThor::epid
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+  #if acronyms exist, use them, its more precise
+
   #exact matches species in input data to acronym from index
   taxaIn$epid_v <- epidDB$epid_v[match(taxaIn$acronym, trimws(epidDB$acronym))]
   taxaIn$epid_s <- epidDB$epid_s[match(taxaIn$acronym, trimws(epidDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$epid_s[i]) | is.na(taxaIn$epid_v[i])){
-      taxaIn$epid_v[i] <- epidDB$epid_v[match(taxaIn$species[i], trimws(epidDB$fullspecies))]
-      taxaIn$epid_s[i] <- epidDB$epid_s[match(taxaIn$species[i], trimws(epidDB$fullspecies))]
+      taxaIn$epid_v[i] <- epidDB$epid_v[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
+      taxaIn$epid_s[i] <- epidDB$epid_s[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
 
   #gets the column named "species", everything before that is a sample
   lastcol = which(colnames(taxaIn)=="species")
@@ -340,7 +393,7 @@ diat_epid <- function(resultLoad){
   print("Calculating EPID index")
   #creates results dataframe
   epid.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(epid.results) <- c("EPID", "EPID20", "EPID Taxa used")
+  colnames(epid.results) <- c("EPID", "EPID20", "Precision")
   #finds the column
   epid_s <- (taxaIn[,"epid_s"])
   epid_v <- (taxaIn[,"epid_v"])
@@ -361,6 +414,15 @@ diat_epid <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------EPID INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, epid.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="epid.results$Precision"] <- "EPID"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(epid.results) <- resultLoad[[3]]
   return(epid.results)
 }
 
@@ -379,27 +441,27 @@ diat_idap <- function(resultLoad){
     }
   }
 
-  taxaIn <- resultLoad[[2]]
+  taxaIn <- resultLoad[[2]] #indices use raw matrix
 
   ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #idapDB <- read.csv("../Indices/idap.csv") #uses the external csv file
   idapDB <- DiaThor::idap
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
   #exact matches species in input data to acronym from index
   taxaIn$idap_v <- idapDB$idap_v[match(taxaIn$acronym, trimws(idapDB$acronym))]
   taxaIn$idap_s <- idapDB$idap_s[match(taxaIn$acronym, trimws(idapDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$idap_s[i]) | is.na(taxaIn$idap_v[i])){
-      taxaIn$idap_v[i] <- idapDB$idap_v[match(taxaIn$species[i], trimws(idapDB$fullspecies))]
-      taxaIn$idap_s[i] <- idapDB$idap_s[match(taxaIn$species[i], trimws(idapDB$fullspecies))]
+      taxaIn$idap_v[i] <- idapDB$idap_v[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
+      taxaIn$idap_s[i] <- idapDB$idap_s[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
     }
   }
-
-
-  ### FINISH NEW CORRECTIONS
 
 
   #gets the column named "species", everything before that is a sample
@@ -409,7 +471,7 @@ diat_idap <- function(resultLoad){
   print("Calculating IDAP index")
   #creates results dataframe
   idap.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(idap.results) <- c("IDAP", "IDAP20", "IDAP Taxa used")
+  colnames(idap.results) <- c("IDAP", "IDAP20", "Precision")
   #finds the column
   idap_s <- (taxaIn[,"idap_s"])
   idap_v <- (taxaIn[,"idap_v"])
@@ -431,6 +493,15 @@ diat_idap <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------IDAP INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, idap.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="idap.results$Precision"] <- "IDAP"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(idap.results) <- resultLoad[[3]]
   return(idap.results)
 }
 
@@ -457,17 +528,21 @@ diat_idch <- function(resultLoad){
   #Loads the species list specific for this index
   #idchDB <- read.csv("../Indices/idch.csv") #uses the external csv file
   idchDB <- DiaThor::idch
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
   #exact matches species in input data to acronym from index
   taxaIn$idch_v <- idchDB$idch_v[match(taxaIn$acronym, trimws(idchDB$acronym))]
   taxaIn$idch_s <- idchDB$idch_s[match(taxaIn$acronym, trimws(idchDB$acronym))]
-  #the ones not found exact (NA), try against fullspecies
+
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$idch_s[i]) | is.na(taxaIn$idch_v[i])){
-      taxaIn$idch_v[i] <- idchDB$idch_v[match(taxaIn$species[i], trimws(idchDB$fullspecies))]
-      taxaIn$idch_s[i] <- idchDB$idch_s[match(taxaIn$species[i], trimws(idchDB$fullspecies))]
+      taxaIn$idch_v[i] <- idchDB$idch_v[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
+      taxaIn$idch_s[i] <- idchDB$idch_s[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
+
   #gets the column named "species", everything before that is a sample
   lastcol = which(colnames(taxaIn)=="species")
 
@@ -475,7 +550,7 @@ diat_idch <- function(resultLoad){
   print("Calculating IDCH index")
   #creates results dataframe
   idch.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(idch.results) <- c("IDCH", "IDCH20", "IDCH Taxa used")
+  colnames(idch.results) <- c("IDCH", "IDCH20", "Precision")
   #finds the column
   idch_s <- (taxaIn[,"idch_s"])
   idch_v <- (taxaIn[,"idch_v"])
@@ -496,7 +571,15 @@ diat_idch <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------IDCH INDEX: END--------############
-  print("starting end")
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, idch.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="idch.results$Precision"] <- "IDCH"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(idch.results) <- resultLoad[[3]]
   return(idch.results)
 
 }
@@ -522,19 +605,23 @@ diat_ilm <- function(resultLoad){
   #Loads the species list specific for this index
   #ilmDB <- read.csv("../Indices/ilm.csv") #uses the external csv file
   ilmDB <- DiaThor::ilm
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+
   #exact matches species in input data to acronym from index
   taxaIn$ilm_v <- ilmDB$ilm_v[match(taxaIn$acronym, trimws(ilmDB$acronym))]
   taxaIn$ilm_s <- ilmDB$ilm_s[match(taxaIn$acronym, trimws(ilmDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$ilm_s[i]) | is.na(taxaIn$ilm_v[i])){
-      taxaIn$ilm_v[i] <- ilmDB$ilm_v[match(taxaIn$species[i], trimws(ilmDB$fullspecies))]
-      taxaIn$ilm_s[i] <- ilmDB$ilm_s[match(taxaIn$species[i], trimws(ilmDB$fullspecies))]
+      taxaIn$ilm_v[i] <- ilmDB$ilm_v[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
+      taxaIn$ilm_s[i] <- ilmDB$ilm_s[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
+
 
   #gets the column named "species", everything before that is a sample
   lastcol = which(colnames(taxaIn)=="species")
@@ -543,7 +630,7 @@ diat_ilm <- function(resultLoad){
   print("Calculating ILM index")
   #creates results dataframe
   ilm.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(ilm.results) <- c("ILM", "ILM20", "ILM Taxa used")
+  colnames(ilm.results) <- c("ILM", "ILM20", "Precision")
   #finds the column
   ilm_s <- (taxaIn[,"ilm_s"])
   ilm_v <- (taxaIn[,"ilm_v"])
@@ -565,6 +652,15 @@ diat_ilm <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------ILM INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, ilm.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="ilm.results$Precision"] <- "ILM"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(ilm.results) <- resultLoad[[3]]
   return(ilm.results)
 }
 
@@ -590,19 +686,24 @@ diat_lobo <- function(resultLoad){
   #Loads the species list specific for this index
   #loboDB <- read.csv("../Indices/lobo.csv") #uses the external csv file
   loboDB <- DiaThor::lobo
+
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+
   #exact matches species in input data to acronym from index
   taxaIn$lobo_v <- loboDB$lobo_v[match(taxaIn$acronym, trimws(loboDB$acronym))]
   taxaIn$lobo_s <- loboDB$lobo_s[match(taxaIn$acronym, trimws(loboDB$acronym))]
 
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$lobo_s[i]) | is.na(taxaIn$lobo_v[i])){
-      taxaIn$lobo_v[i] <- loboDB$lobo_v[match(taxaIn$species[i], trimws(loboDB$fullspecies))]
-      taxaIn$lobo_s[i] <- loboDB$lobo_s[match(taxaIn$species[i], trimws(loboDB$fullspecies))]
+      taxaIn$lobo_v[i] <- loboDB$lobo_v[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
+      taxaIn$lobo_s[i] <- loboDB$lobo_s[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
+
 
   #removes NA from taxaIn
   taxaIn[is.na(taxaIn)] <- 0
@@ -614,7 +715,7 @@ diat_lobo <- function(resultLoad){
   print("Calculating LOBO index")
   #creates results dataframe
   lobo.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(lobo.results) <- c("LOBO", "LOBO20", "LOBO Taxa used")
+  colnames(lobo.results) <- c("LOBO", "LOBO20", "Precision")
   #finds the column
   lobo_s <- (taxaIn[,"lobo_s"])
   lobo_v <- (taxaIn[,"lobo_v"])
@@ -635,6 +736,15 @@ diat_lobo <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------LOBO INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, lobo.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="lobo.results$Precision"] <- "LOBO"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(lobo.results) <- resultLoad[[3]]
   return(lobo.results)
 }
 
@@ -653,22 +763,25 @@ diat_she <- function(resultLoad){
     }
   }
 
-  taxaInRA <- resultLoad[[1]]
+  taxaInRA <- resultLoad[[2]]
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #sheDB <- read.csv("../Indices/she.csv") #uses the external csv file
   sheDB <- DiaThor::she
-  #exact matches species in input data to acronym from index
-  taxaInRA$she_v <- sheDB$she_v[match(taxaInRA$acronym, trimws(sheDB$acronym))]
 
-  #the ones not found exact (NA), try against fullspecies
-  for (i in 1:nrow(taxaInRA)) {
-    if (is.na(taxaInRA$she_v[i])){
-      taxaInRA$she_v[i] <- sheDB$she_v[match(taxaInRA$species[i], trimws(sheDB$fullspecies))]
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+  #exact matches species in input data to acronym from index
+  taxaIn$she_v <- sheDB$she_v[match(taxaIn$acronym, trimws(sheDB$acronym))]
+
+  #the ones still not found (NA), try against fullspecies
+  for (i in 1:nrow(taxaIn)) {
+    if (is.na(taxaIn$she_v[i])){
+      taxaIn$she_v[i] <- sheDB$she_v[match(taxaIn$species[i], trimws(sheDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
 
   #removes NA from taxaInRA
   taxaInRA[is.na(taxaInRA)] <- 0
@@ -680,7 +793,7 @@ diat_she <- function(resultLoad){
   print("Calculating SHE index")
   #creates results dataframe
   she.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(she.results) <- c("SHE", "SHE20", "SHE Taxa used")
+  colnames(she.results) <- c("SHE", "SHE20", "Precision")
   #finds the column
   she_v <- (taxaInRA[,"she_v"])
   #PROGRESS BAR
@@ -700,6 +813,15 @@ diat_she <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------SHE INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, she.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="she.results$Precision"] <- "SHE"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(she.results) <- resultLoad[[3]]
   return(she.results)
 }
 
@@ -718,23 +840,25 @@ diat_wat <- function(resultLoad){
     }
   }
 
-  taxaInRA <- resultLoad[[1]]
+  taxaInRA <- resultLoad[[2]]
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #watDB <- read.csv("../Indices/wat.csv") #uses the external csv file
   watDB <- DiaThor::wat
-  #exact matches species in input data to acronym from index
-  taxaInRA$wat_v <- watDB$wat_v[match(taxaInRA$acronym, trimws(watDB$acronym))]
 
-  #the ones not found exact (NA), try against fullspecies
-  for (i in 1:nrow(taxaInRA)) {
-    if (is.na(taxaInRA$wat_v[i])){
-      taxaInRA$wat_v[i] <- watDB$wat_v[match(taxaInRA$species[i], trimws(watDB$fullspecies))]
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+
+  #exact matches species in input data to acronym from index
+  taxaIn$wat_v <- watDB$wat_v[match(taxaIn$acronym, trimws(watDB$acronym))]
+
+  #the ones still not found (NA), try against fullspecies
+  for (i in 1:nrow(taxaIn)) {
+    if (is.na(taxaIn$wat_v[i]) | is.na(taxaIn$wat_v[i])){
+      taxaIn$wat_v[i] <- watDB$wat_v[match(trimws(rownames(taxaIn[i,])), trimws(watDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
-
 
   #removes NA from taxaInRA
   taxaInRA[is.na(taxaInRA)] <- 0
@@ -746,7 +870,7 @@ diat_wat <- function(resultLoad){
   print("Calculating WAT index")
   #creates results dataframe
   wat.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(wat.results) <- c("WAT", "WAT20", "WAT Taxa used")
+  colnames(wat.results) <- c("WAT", "WAT20", "Precision")
 
   #finds the column
   wat_v <- as.data.frame(taxaInRA[,"wat_v"])
@@ -768,6 +892,15 @@ diat_wat <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------WAT INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, wat.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="wat.results$Precision"] <- "WAT"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(wat.results) <- resultLoad[[3]]
   return(wat.results)
 }
 
@@ -787,25 +920,21 @@ diat_sla <- function(resultLoad){
   }
 
   taxaIn <- resultLoad[[2]]
-
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #slaDB <- read.csv("../Indices/sla.csv") #uses the external csv file
   slaDB <- DiaThor::sla
+
+
   #exact matches species in input data to acronym from index
   taxaIn$sla_v <- slaDB$sla_v[match(taxaIn$acronym, trimws(slaDB$acronym))]
   taxaIn$sla_s <- slaDB$sla_s[match(taxaIn$acronym, trimws(slaDB$acronym))]
-
-
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$sla_s[i]) | is.na(taxaIn$sla_v[i])){
-      taxaIn$sla_v[i] <- slaDB$sla_v[match(taxaIn$species[i], trimws(slaDB$fullspecies))]
-      taxaIn$sla_s[i] <- slaDB$sla_s[match(taxaIn$species[i], trimws(slaDB$fullspecies))]
+      taxaIn$sla_v[i] <- slaDB$sla_v[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
+      taxaIn$sla_s[i] <- slaDB$sla_s[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
-
   #removes NA from taxaInRA
   taxaIn[is.na(taxaIn)] <- 0
 
@@ -816,7 +945,7 @@ diat_sla <- function(resultLoad){
   print("Calculating SLA index")
   #creates results dataframe
   sla.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(sla.results) <- c("SLA", "SLA20", "SLA Taxa used")
+  colnames(sla.results) <- c("SLA", "SLA20", "Precision")
   #finds the column
   sla_s <- (taxaIn[,"sla_s"])
   sla_v <- (taxaIn[,"sla_v"])
@@ -837,11 +966,22 @@ diat_sla <- function(resultLoad){
   }
   #close progressbar
   close(pb)
+
   #######--------SLA INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, sla.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="sla.results$Precision"] <- "SLA"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(sla.results) <- resultLoad[[3]]
+  print("980")
   return(sla.results)
 }
 
-###### ---------- FUNCTION FOR SPEAR INDEX: (Wood et al. 2019) ---------- ########
+###### ---------- FUNCTION FOR SPEAR INDEX: NEW TEST DONE (Wood et al. 2019) ---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with SPEAR index per sample
 #' @export
@@ -858,20 +998,20 @@ diat_spear <- function(resultLoad){
 
   taxaInRA <- resultLoad[[1]]
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   #spearDB <- read.csv("../Indices/spear.csv") #uses the external csv file
   spearDB <- DiaThor::spear
+
   #exact matches species in input data to acronym from index
   taxaInRA$spear_v <- spearDB$spear_v[match(taxaInRA$acronym, trimws(spearDB$acronym))]
 
-  #the ones not found exact (NA), try against fullspecies
+  #the ones still not found (NA), try against fullspecies
   for (i in 1:nrow(taxaInRA)) {
     if (is.na(taxaInRA$spear_v[i])){
-      taxaInRA$spear_v[i] <- spearDB$spear_v[match(taxaInRA$species[i], trimws(spearDB$fullspecies))]
+      taxaInRA$spear_v[i] <- spearDB$spear_v[match(trimws(rownames(taxaInRA[i,])), trimws(spearDB$fullspecies))]
     }
   }
-  ### FINISH NEW CORRECTIONS
+
 
   #removes NA from taxaInRA
   taxaInRA[is.na(taxaInRA)] <- 0
@@ -883,7 +1023,7 @@ diat_spear <- function(resultLoad){
   print("Calculating SPEAR index")
   #creates results dataframe
   spear.results <- data.frame(matrix(ncol = 2, nrow = (lastcol-1)))
-  colnames(spear.results) <- c("SPEAR", "SPEAR Taxa used")
+  colnames(spear.results) <- c("SPEAR", "Precision")
   #finds the column
   spear_v <- (taxaInRA[,"spear_v"])
   #PROGRESS BAR
@@ -902,5 +1042,14 @@ diat_spear <- function(resultLoad){
   #close progressbar
   close(pb)
   #######--------SPEAR INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, spear.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="spear.results$Precision"] <- "SPEAR"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(spear.results) <- resultLoad[[3]]
   return(spear.results)
 }

@@ -75,8 +75,12 @@ diat_morpho <- function(resultLoad){
     #sum abundances per category
     for (i in numcloroplastos){
       abc <- sum(taxaInRA[which(taxaInRA$chloroplast_number == i),sampleNumber])
+      #round numbers and remove negatives
+      if (abc<0){abc <- 0}
+      abc <- round(abc, digits=3)
       numcloroplastos.ab <- c(numcloroplastos.ab, abc)
     }
+
     #labels and exports dataframe with results, in a single row to add the rest of samples as rows
     numcloroplastos.result[sampleNumber, ] <- numcloroplastos.ab
     #update progressbar
@@ -101,8 +105,12 @@ diat_morpho <- function(resultLoad){
     #sum abundances per category
     for (i in shpcloroplastos){
       abc <- sum(taxaInRA[which(taxaInRA$chloroplast_shape == i),sampleNumber])
+      #round numbers and remove negatives
+      if (abc<0){abc <- 0}
+      abc <- round(abc, digits=3)
       shpcloroplastos.ab <- c(shpcloroplastos.ab, abc)
     }
+
     #labels and exports dataframe with results, in a single row to add the rest of samples as rows
     shpcloroplastos.result[sampleNumber, ] <- shpcloroplastos.ab
     #update progressbar
@@ -195,6 +203,15 @@ diat_size <- function(resultLoad){
     size_cat4 <- sum(taxaInRA[which(size_v == 4),sampleNumber])
     size_cat5 <- sum(taxaInRA[which(size_v == 5),sampleNumber])
     size_indet <- 100 - sum(size_cat1, size_cat2, size_cat3, size_cat4, size_cat5) #calculates indetermined
+    #round numbers and remove negatives
+    if (size_indet<0){size_indet <- 0}
+    size_cat1 <- round(size_cat1, digits=3)
+    size_cat2 <- round(size_cat2, digits=3)
+    size_cat3 <- round(size_cat3, digits=3)
+    size_cat4 <- round(size_cat4, digits=3)
+    size_cat5 <- round(size_cat5, digits=3)
+    size_indet <- round(size_indet, digits=3)
+
     #how many taxa will be used to calculate? Taxa that have a valid indicator value and abundance > 0
     sizetaxaused <- length(which(size_v != 0 & taxaInRA[,sampleNumber] > 0))
     #which taxa were used? to export
@@ -322,6 +339,15 @@ diat_guild <- function(resultLoad){
     guild_Mot_ab <- sum(taxaInRA[which(guild_Mot == 1),sampleNumber])
     guild_Plank_ab <- sum(taxaInRA[which(guild_Plank == 1),sampleNumber])
     guild_indet <- 100 - sum(guild_HP_ab, guild_LP_ab, guild_Mot_ab, guild_Plank_ab) #calculates indetermined
+
+
+    #round numbers and remove negatives
+    if (guild_indet<0){guild_indet <- 0}
+    guild_HP_ab <- round(guild_HP_ab, digits=3)
+    guild_LP_ab <- round(guild_LP_ab, digits=3)
+    guild_Mot_ab <- round(guild_Mot_ab, digits=3)
+    guild_Plank_ab <- round(guild_Plank_ab, digits=3)
+    guild_indet <- round(guild_indet, digits=3)
 
     #how many taxa will be used to calculate? Taxa that have a valid indicator value and abundance > 0
     guildtaxaused <- length(which(guild_HP == 1 & taxaInRA[,sampleNumber] > 0))
