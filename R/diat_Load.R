@@ -81,7 +81,6 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
     #there is no acronym column, creates one
     species_df$acronym <- NA
 
-
     print ("Searching for acronyms in exact match, please wait...")
     #exact match by species name (fast)
     species_df$acronym <- acronymDB$acronym[match(trimws(rownames(species_df)), acronymDB$species)]
@@ -99,21 +98,48 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
     close(pb)
   }
 
-  #UPDATE ACRONYMS
+  #original species and acronym list
+  speciesList <- trimws(rownames(species_df))
+  acronymList <- trimws(species_df$acronym)
+  #builds column with new name for species
+    species_df$new_species <- NA
+
+    #UPDATE ACRONYMS
+  updatedacronyms <- 0
   species_df$acronym <- as.character(species_df$acronym)
-  for(i in 1:nrow(species_df)) {
-    if (!is.na(species_df$acronym[i])){ #there is an acronym for this species, try updating
-      updatedacronym <- acronymDB$new_acronym[match(species_df$acronym[i], acronymDB$acronym)] #get updated acronym
-      if (updatedacronym != ""){ #if there is no new acronym, do nothing and keep the existing
-        species_df$acronym[i] <- updatedacronym
+
+  #keepupdating <- T
+  #while (keepupdating == T){
+    updatedacronyms <- 0
+    for(i in 1:nrow(species_df)) {
+      if (!is.na(species_df$acronym[i])){ #there is an acronym for this species, try updating
+        updatedacronym <- acronymDB$new_acronym[match(species_df$acronym[i], acronymDB$acronym)] #get updated acronym
+        updatedspecies <- acronymDB$new_species[match(species_df$acronym[i], acronymDB$acronym)] #get updated species
+        if (is.na(updatedacronym) | updatedacronym == ""){
+          #print(paste("i=", i, " already exists"))
+
+        } else{
+          #species_df$new_acronym[i] <- updatedacronym #update the acronym
+          species_df$new_species[i] <- updatedspecies #update the species
+          updatedacronyms <- updatedacronyms + 1
+        }
       }
     }
-  }
+    print(paste("Updated acronyms: ", updatedacronyms))
+    #if (updatedacronyms==0){keepupdating <- F}
+  #}
 
+
+
+  #print(paste("Updated acronyms: ", updatedacronyms))
   print(paste("Acronyms were found for ", nrow(species_df) - sum(is.na(species_df$acronym)) , " species out of ", length(species_df$acronym), sep=""))
   #taxa recognized by acronym
   print("Exporting list of species with the acronyms found by heuristic search. NA= not found")
-  write.csv(cbind(trimws(rownames(species_df)), species_df$acronym), paste(resultsPath,"\\Recognized_acronyms.csv", sep=""))
+  outacronyms <- cbind(speciesList, species_df$new_species, acronymList, species_df$acronym)
+  # outacronyms <- cbind(speciesList, acronymList, species_df$acronym)
+
+  colnames(outacronyms) <- c("Original species","Updated species" ,"Original Acronym", "Updated acronym")
+  write.csv(outacronyms, paste(resultsPath,"\\Recognized_acronyms.csv", sep=""))
   return(species_df)
 
 }
@@ -133,8 +159,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
     species_df <- as.data.frame(read.csv(file.choose())) #select the data matrix with a dialog box
   }
 
-  #Results fomder
-
+  #Results folder
   if(missing(resultsPath)) {
     print("Select Results folder")
     resultsPath <- choose.dir(default = "", caption = "Select folder for your Results")
@@ -159,8 +184,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
     stop("Calculations cancelled. File should contain a column named 'species' with the species list")
   }
   #Reorder alphabetically
-  species_df <- species_df[order(row.names(species_df)),] #reorder alphabetically
-  rawmatrix <- species_df #keep the raw matrix as entered, for some indices that need raw data
+  #species_df <- species_df[order(row.names(species_df)),] #reorder alphabetically
 
 
   # Find acronyms or update then
@@ -222,32 +246,57 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   # NOTE: if several species match with the same name in the diat.barcode database (multiple strains), it keeps the
   # first occurence. Ecological indices usually match in all strains of the same species
   #fuzzy matching
+
   taxaInSp <- species_df[stringdist::ain(row.names(species_df), ecodata[,"species"], maxDist=maxDistTaxa, matchNA = F),]
   numberOfSamples <- ncol(taxaInSp) #Saves the number of columns that correspond to samples
   sampleNames <- colnames(taxaInSp) #Saves the names of the samples
-  sampleNames <- head(sampleNames, -1)
+  removeelem <- c("acronym","new_species","species") #Removes columns not samples
+  sampleNames <- sampleNames[!(sampleNames %in% removeelem)]
+
 
   taxaInEco <- ecodata[stringdist::ain(ecodata[,"species"], row.names(species_df), maxDist=maxDistTaxa),] #FUZZY matching species in table of indices
   taxaInEco <- taxaInEco[!duplicated(taxaInEco[,"species"]),] #we have to make taxaInEco same length as taxaInSp removing duplicate species
-  taxaInEco <- taxaInEco[order(taxaInEco$species),] #reorder alphabetically
-  nrow(taxaInSp)
-  nrow(taxaInEco)
+  #taxaInEco <- taxaInEco[order(taxaInEco$species),] #reorder alphabetically
+
   #and we bind taxaInSp and taxaInEco
-  taxaIn <- cbind(taxaInSp, taxaInEco)
+  taxaInEco <- cbind(taxaInSp, taxaInEco) #dataframe to be exported for morpho
+
+  taxaIn <- species_df #dataframe to be exported for indices
 
   #remove the acronym col and move it to the back
   acronym_col <- taxaIn$acronym
+  acronym_col2 <- taxaInEco$acronym
   acronym_col <- replace(acronym_col, acronym_col=="0", NA)
+  acronym_col2 <- replace(acronym_col2, acronym_col2=="0", NA)
   taxaIn<- taxaIn[ , !(names(taxaIn) == "acronym")] #removes the acronym names column
+  taxaInEco<- taxaInEco[ , !(names(taxaInEco) == "acronym")] #removes the acronym names column
+  taxaInEco$acronym <- acronym_col2
   taxaIn$acronym <- acronym_col
-  taxaIncluded <- as.data.frame(rownames(taxaIn))
+
+  #remove the updated species col and move it to the back in both taxaIn
+  newspecies_col <- taxaIn$new_species
+  newspecies_col <- replace(newspecies_col, newspecies_col=="0", NA)
+  taxaIn<- taxaIn[ , !(names(taxaIn) == "new_species")] #removes the newspecies_col
+  taxaIn$new_species <- newspecies_col
+
+  newspecies_col2 <- taxaInEco$new_species
+  newspecies_col2 <- replace(newspecies_col2, newspecies_col2=="0", NA)
+  taxaInEco<- taxaInEco[ , !(names(taxaInEco) == "new_species")] #removes the newspecies_col
+  taxaInEco$new_species <- newspecies_col2
+
+  sampleNames <- colnames(taxaIn) #Saves the names of the samples
+  removeelem <- c("acronym","new_species","species") #Removes columns not samples
+  sampleNames <- sampleNames[!(sampleNames %in% removeelem)]
+
+  taxaIncluded <- as.data.frame(rownames(taxaInEco))
+
   #Exports included taxa in morphology analyses
   colnames(taxaIncluded) <- "Eco/Morpho"
   write.csv(taxaIncluded, paste(resultsPath,"\\Taxa included.csv", sep=""))
-  print(paste("Number of taxa recognized for morphology:", nrow(taxaIn), "-- Detailed list in 'Taxa included.csv'"))
-  if (nrow(taxaIn)==0){
-    stop("No taxa were recognized from the input data. Check taxonomy instructions for the package")
-  }
+  print(paste("Number of taxa recognized for morphology:", nrow(taxaIncluded), "-- Detailed list in 'Taxa included.csv'"))
+  # if (nrow(taxaIn)==0){
+  #   stop("No taxa were recognized from the input data. Check taxonomy instructions for the package")
+  # }
 
   #also makes a matrix for all the taxa left out, for the user to review
   '%out%' <- function(x,y)!('%in%'(x,y))
@@ -263,11 +312,11 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
 
   write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
 
-  #gets the column named "species" in the diat.barcode database, everything before that column should be a sample with abundance data
-  lastcol = which(colnames(taxaIn)=="species")
-
-  #gets sample names
-  sampleNames <- colnames(taxaIn[1:(lastcol-1)])
+  #gets the column named "acronym" everything before that column should be a sample with abundance data
+  lastcol = which(colnames(taxaIn)=="acronym")
+  #
+  # #gets sample names
+  # sampleNames <- colnames(taxaIn[1:(lastcol-1)])
 
   #CREATES A RELATIVE ABUNDANCE MATRIX AS WELL FOR THOSE INDICES THAT USE IT
   #Convert taxaIn sample data to Relative Abundance data
@@ -283,13 +332,14 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
         }
       }
     }
+  } else {
+    taxaInRA <- taxaIn
   }
 
   #CREATES THE EXPORT PRODUCTS
-  resultList <- list(as.data.frame(taxaInRA), as.data.frame(taxaIn), sampleNames, resultsPath, rawmatrix)
-  names(resultList) <- c("taxaInRA", "taxaIn", "sampleNames", "resultsPath", "rawmatrix")
+  resultList <- list(as.data.frame(taxaInRA), as.data.frame(taxaIn), sampleNames, resultsPath, taxaInEco)
+  names(resultList) <- c("taxaInRA", "taxaIn", "sampleNames", "resultsPath", "taxaInEco")
+  print("Data loaded")
   return(resultList)
 
 }
-
-

@@ -42,15 +42,18 @@
 
 ###### ---------- MASTER FUNCTION, CALCULATES EVERYTHING WITH ALL POSSIBLE OUTPUTS BY DEFAULT  ---------- ########
 
-diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds = T, vandam = T, vandamReports = T, singleResult = T, exportFormat = 3, exportName = "Diato_results", plotAll = T, color = "#0073C2"){
-  resultmat <- diat_loadData(species_df)
-  morpho.results <- diat_morpho(resultmat)
-  numcloroplastos.result <- morpho.results[[1]]
-  shpcloroplastos.result <- morpho.results[[2]]
-  biovol.val.result <- morpho.results[[3]]
+diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, calculateguilds = T, vandam = T, vandamReports = T, singleResult = T, exportFormat = 3, exportName = "Diato_results", plotAll = T, color = "#0073C2"){
+  resultmat <- diat_loadData(species_df, isRelAb, maxDistTaxa, resultsPath)
+  morpho.results <- diat_morpho(resultmat, isRelAb)
+
+  if (exists("morpho.results")){
+    numcloroplastos.result <- morpho.results[[1]]
+    shpcloroplastos.result <- morpho.results[[2]]
+    biovol.val.result <- morpho.results[[3]]
+  }
   size.results <- diat_size(resultmat)
+  guilds.results <- diat_guilds(resultmat)
   diversity.results <- diat_diversity(resultmat)
-  guilds.results <- diat_guild(resultmat)
   vandam.results <- diat_vandam(resultmat)
   ips.results <- diat_ips(resultmat)
   tdi.results <- diat_tdi(resultmat)
@@ -60,7 +63,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   des.results <- diat_des(resultmat)
   epid.results <- diat_epid(resultmat)
   idap.results <- diat_idap(resultmat)
-  #idch.results <- diat_idch(resultmat) -- NEEDS ALL THE ACRONYMS IN THE FILE
+  idch.results <- diat_idch(resultmat)
   lobo.results <- diat_lobo(resultmat)
   #she.results <- calculate_she(resultmat)
   #wat.results <- calculate_wat(resultmat)
@@ -75,7 +78,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
   if (singleResult == T){ #by default exports a single spreadsheet with all the results
     singleTable <- NULL
     singleTable <- data.frame(c(if(exists("diversity.results")){diversity.results},
-                     if(exists("numcloroplastos.result")){numcloroplastos.result},
+                     if(exists("numcloroplastos.result")){as.data.frame(numcloroplastos.result)},
                      if(exists("shpcloroplastos.result")){shpcloroplastos.result},
                      if(exists("biovol.val.result")){biovol.val.result},
                      if(exists("size.results")){size.results},
@@ -84,6 +87,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                      if(exists("ips.results")){ips.results},
                      if(exists("tdi.results")){tdi.results},
                      if(exists("idp.results")){idp.results},
+                     if(exists("ilm.results")){ilm.results},
                      if(exists("des.results")){des.results},
                      if(exists("epid.results")){epid.results},
                      if(exists("idap.results")){idap.results},
@@ -108,7 +112,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                      if(exists("ips.results")){ips.results},
                      if(exists("tdi.results")){tdi.results},
                      if(exists("idp.results")){idp.results},
-                     if(exists("ilp.results")){idp.results},
+                     if(exists("ilm.results")){ilm.results},
                      if(exists("des.results")){des.results},
                      if(exists("epid.results")){epid.results},
                      if(exists("idap.results")){idap.results},
@@ -128,7 +132,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
                          if(exists("ips.results")){"IPS index"},
                          if(exists("tdi.results")){"TDI index"},
                          if(exists("idp.results")){"IDP index"},
-                         if(exists("ilm.results")){"IDP index"},
+                         if(exists("ilm.results")){"ILM index"},
                          if(exists("des.results")){"DES index"},
                          if(exists("epid.results")){"EPID index"},
                          if(exists("idap.results")){"IDAP index"},
@@ -145,6 +149,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     if (singleResult == T) {
       filename = paste(exportName, " - Results", ".csv")
       write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
+
     } else {
       for (i in seq_along(listOfTables)) {
         filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
@@ -342,7 +347,7 @@ diathorAll <- function(species_df, isRelAb = F, maxDistTaxa = 2, calculateguilds
     }
 
     if(exists("spear.results")){
-      print(loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 1, samplenames=rownames(spear.results))) #raw index
+      print(loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 100, samplenames=rownames(spear.results))) #raw index
     }
 
     # Close the pdf file

@@ -28,37 +28,59 @@
 #' @export diat_morpho
 #' @export diat_size
 #' @export diat_diversity
-#' @export diat_guild
+#' @export diat_guilds
 #' @export diat_vandam
 #'
+
 
 
 ###### ---------- FUNCTION FOR MORPHOLOGICAL DATA: DONE ---------- ########
 #### IN THIS SECTION WE CALCULATE MORPHOLOGICAL VARIABLES
 ### INPUT: result created in loadData(). If its in RA, biovolume cannot be calculated
 ### OUTPUTS: #number of chloroplasts #shape of chloroplasts #biovolume
-diat_morpho <- function(resultLoad){
+
+diat_morpho <- function(resultLoad, isRelAb = F){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
     }
   }
 
-  taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
+  #taxaIn <- resultLoad[[2]] #abundance in absolute
+  #taxaInRA <- resultLoad[[1]] #abundance in relative abundance
+  sampleNames <- resultLoad[[3]]
+  resultsPath <- resultLoad[[4]]
+  taxaIn <- resultLoad[[5]]
 
-  #removes NA from taxaIn
-  taxaIn[is.na(taxaIn)] <- 0
+  #checks thata taxaIn (taxaIn from diat_Load) has at least recognized some species
+  if (nrow(taxaIn)==0){
+    print("No species were recognized for morphology calculations")
+    print("Morphology data will not be available")
+    morphoresultTable <- NULL
+    return(morphoresultTable)
+  }
 
   #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
-  #gets sample names
-  sampleNames <- colnames(taxaInRA[1:(lastcol-1)])
 
+  lastcol <- which(colnames(taxaIn)=="species")
+
+  # Convert taxaIn sample data to Relative Abundance data
+  if(isRelAb==FALSE){ #pass parameter when in function
+    taxaInRA <- taxaIn
+    for (i in 1:nrow(taxaIn)){
+      for (j in 1:(lastcol-1)){
+        if (is.na(taxaIn[i,j])){
+          taxaInRA[i,j] <- 0
+        } else {
+          taxaInRA[i,j] <- (taxaIn[i,j]*100)/sum(taxaIn[,j])
+        }
+      }
+    }
+  } else {taxaInRA <- taxaIn}
 
   ##### Number of Chloroplasts
   #creates an empty dataframe
@@ -141,11 +163,12 @@ diat_morpho <- function(resultLoad){
   #close progressbar
   close(pb)
 
+
+
   ##### END Biovolume
   morphoresultTable <- NULL
   morphoresultTable <- data.frame(c( if(exists("numcloroplastos.result")){numcloroplastos.result}, if(exists("shpcloroplastos.result")){shpcloroplastos.result}, if(exists("biovol.val.result")){biovol.val.result}))
   rownames(morphoresultTable) <- sampleNames
-
   morphoresultTable <- list(as.data.frame(numcloroplastos.result), as.data.frame(shpcloroplastos.result), as.data.frame(if(exists("biovol.val.result")){biovol.val.result}))
   names(morphoresultTable) <- c("numcloroplastos.result", "shpcloroplastos.result", "biovol.val.result")
   return(morphoresultTable)
@@ -162,21 +185,40 @@ diat_size <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
     }
   }
+  taxaInEco <-  resultLoad[[5]]
 
-  taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
+  #checks thata taxaInEco (taxaInEco from diat_Load) has at least recognized some species
+  if (nrow(taxaInEco)==0){
+    print("No species were recognized for size class calculations")
+    print("Size class data will not be available")
+    size.results <- NULL
+    return(size.results)
+  }
 
-  #removes NA from taxaIn
-  taxaIn[is.na(taxaIn)] <- 0
 
   #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  lastcol <- which(colnames(taxaInEco)=="species")
+
+  #Convert taxaIn sample data to Relative Abundance data
+  taxaInRA <- taxaInEco
+  for (i in 1:nrow(taxaInEco)){
+    for (j in 1:(lastcol-1)){
+      if (is.na(taxaInEco[i,j])){
+        taxaInRA[i,j] <- 0
+      } else {
+        taxaInRA[i,j] <- (taxaInEco[i,j]*100)/sum(taxaInEco[,j])
+      }
+    }
+  }
+
+
+
   #gets sample names
   sampleNames <- colnames(taxaInRA[1:(lastcol-1)])
 
@@ -230,7 +272,7 @@ diat_size <- function(resultLoad){
 }
 
 
-###### ---------- FUNCTION FOR ECOLOGICAL INDICES: DONE   ---------- ########
+###### ---------- FUNCTION FOR DIVERSITY INDICES: DONE   ---------- ########
 #### IN THIS SECTION WE CALCULATE BASIC ECOLOGICAL INDICES WITH VEGAN
 ### INPUT: resultLoad Cannot be in Relative Abundance
 ### OUTPUTS: dataframe with diversity indices per sample
@@ -240,7 +282,7 @@ diat_diversity <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -248,13 +290,12 @@ diat_diversity <- function(resultLoad){
   }
 
   taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
 
   #removes NA from taxaIn
   taxaIn[is.na(taxaIn)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #remove NA to 0
   taxaIn[is.na(taxaIn)] <- 0
@@ -294,24 +335,44 @@ diat_diversity <- function(resultLoad){
 ### INPUT: taxaInRA created in loadData()
 ### OUTPUTS: dataframe with ecological guilds  per sample
 
-diat_guild <- function(resultLoad){
+diat_guilds <- function(resultLoad){
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
     }
   }
 
-  taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
+  taxaInEco <- resultLoad[[5]]
 
-  #removes NA from taxaIn
-  taxaIn[is.na(taxaIn)] <- 0
+
+  #checks thata taxaInEco (taxaInEco from diat_Load) has at least recognized some species
+  if (nrow(taxaInEco)==0){
+    print("No species were recognized for guild calculations")
+    print("Guild data will not be available")
+    guilds.results <- NULL
+    return(guilds.results)
+  }
 
   #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  lastcol <- which(colnames(taxaInEco)=="species")
+
+  #Convert taxaIn sample data to Relative Abundance data
+  taxaInRA <- taxaInEco
+  for (i in 1:nrow(taxaInEco)){
+    for (j in 1:(lastcol-1)){
+      if (is.na(taxaInEco[i,j])){
+        taxaInRA[i,j] <- 0
+      } else {
+        taxaInRA[i,j] <- (taxaInEco[i,j]*100)/sum(taxaInEco[,j])
+      }
+    }
+  }
+
+  #removes NA from taxaIn
+  taxaInRA[is.na(taxaInRA)] <- 0
 
   #creates results dataframe
   guild_labels <- c("Guild: HP", "Guild: LP", "Guild: Mot", "Guild: Plank", "Guild: Indet", "Guilds Taxa used")
@@ -393,21 +454,39 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
     }
   }
 
-  taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
-
-  #removes NA from taxaIn
-  taxaIn[is.na(taxaIn)] <- 0
+  taxaInEco <- resultLoad[[5]]
+  #checks thata taxaInEco (taxaInEco from diat_Load) has at least recognized some species
+  if (nrow(taxaInEco)==0){
+    print("No species were recognized for VanDam calculations")
+    print("VanDam data will not be available")
+    vandam.results <- NULL
+    return(vandam.results)
+  }
 
   #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  lastcol <- which(colnames(taxaInEco)=="species")
+
+  #Convert taxaIn sample data to Relative Abundance data
+  taxaInRA <- taxaInEco
+  for (i in 1:nrow(taxaInEco)){
+    for (j in 1:(lastcol-1)){
+      if (is.na(taxaInEco[i,j])){
+        taxaInRA[i,j] <- 0
+      } else {
+        taxaInRA[i,j] <- (taxaInEco[i,j]*100)/sum(taxaInEco[,j])
+      }
+    }
+  }
+
+  #removes NA from taxaInRA
+  taxaInRA[is.na(taxaInRA)] <- 0
 
   resultsPath <- resultLoad[[4]]
   # CHECKS IF RESULTSPATH EXISTS, OR ASKS FOR IT, FOR THE DETAILED REPORTS

@@ -1,14 +1,37 @@
+#' These functions calculate diatom indices from the input data
+#' @description
+#' The input for these functions is the resulting dataframe obtained from the diat_loadData function to calculate diatom indices
+#' @examples
+#' # EXAMPLE 1:
+#' data("environmental_data") #ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
+#' data("species_data")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
+#' # EXAMPLE 2: Loads sample data where species are in absolute densities
+#' data("environmental_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
+#' data("species_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
+#' # Calculates everything
+#' thispackage::calculate_everything(species_df)
+#' @concepts ecology, diatom, bioindicator, biotic indices
+#' @export diat_ips
+#' @export diat_tdi
+#' @export diat_idp
+#' @export diat_des
+#' @export diat_epid
+#' @export diat_idap
+#' @export diat_idch
+#' @export diat_ilm
+#' @export diat_lobo
+#' @export diat_sla
+#' @export diat_spear
 
-###### ---------- FUNCTION FOR IPS INDEX: NEW TEST DONE   ---------- ########
+###### ---------- FUNCTION FOR IPS INDEX: DONE   ---------- ########
 #### IN THIS SECTION WE CALCULATE IPS INDEX (REF)
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with IPS index per sample
-#' @export
 diat_ips <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -17,17 +40,39 @@ diat_ips <- function(resultLoad){
 
   taxaIn <- resultLoad[[2]]
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
-  #######--------IPS INDEX START (indice poluto sensible)--------#############
+  #Loads the species list specific for this index
+  #idpDB <- read.csv("../Indices/ips.csv") #uses the external csv file
+  ipsDB <- DiaThor::ips
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+  #if acronyms exist, use them, its more precise
+  #if there is an acronym column, it removes it and stores it for later
+  #exact matches species in input data to acronym from index
+  taxaIn$ips_s <- ipsDB$ips_s[match(trimws(taxaIn$acronym), trimws(ipsDB$acronym))]
+  taxaIn$ips_v <- ipsDB$ips_v[match(trimws(taxaIn$acronym), trimws(ipsDB$acronym))]
+
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$ips_s[i]) | is.na(taxaIn$ips_v[i])){
+  #     taxaIn$ips_s[i] <- ipsDB$ips_s[match(trimws(rownames(taxaIn[i,])), trimws(ipsDB$fullspecies))]
+  #     taxaIn$ips_v[i] <- ipsDB$ips_v[match(trimws(rownames(taxaIn[i,])), trimws(ipsDB$fullspecies))]
+  #   }
+  # }
+
+
+    #######--------IPS INDEX START (indice poluto sensible)--------#############
   print("Calculating IPS index")
   #creates results dataframe
   ips.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
   colnames(ips.results) <- c("IPS", "IPS20", "Precision")
   #finds the column
-  ips_s <- (taxaIn[,"ipss"])
-  ips_vv <- (taxaIn[,"ipsvv"])
+  ips_s <- (taxaIn[,"ips_s"])
+  ips_v <- (taxaIn[,"ips_v"])
   #PROGRESS BAR
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
@@ -35,8 +80,8 @@ diat_ips <- function(resultLoad){
     IPStaxaused <- (length(ips_s) - sum(is.na(taxaIn$ips_s )))*100 / length(ips_s)
     #remove the NA
     ips_s[is.na(ips_s)] = 0
-    ips_vv[is.na(ips_vv)] = 0
-    IPS <- sum((taxaIn[,sampleNumber]*as.double(ips_s)*as.double(ips_vv)))/sum(taxaIn[,sampleNumber]*as.double(ips_vv)) #raw value
+    ips_v[is.na(ips_v)] = 0
+    IPS <- sum((taxaIn[,sampleNumber]*as.double(ips_s)*as.double(ips_v)))/sum(taxaIn[,sampleNumber]*as.double(ips_v)) #raw value
     IPS20 <- (IPS*4.75)-3.75 #STANDARDIZED VALUE TO 20
     ips.results[sampleNumber, ] <- c(IPS, IPS20, IPStaxaused)
 
@@ -59,20 +104,19 @@ diat_ips <- function(resultLoad){
 }
 
 
-###### ---------- FUNCTION FOR TDI INDEX: NEW TEST DONE  (Trophic Index - Kelly)  ---------- ########
+###### ---------- FUNCTION FOR TDI INDEX: DONE  (Trophic Index - Kelly)  ---------- ########
 #### IN THIS SECTION WE CALCULATE TDI INDEX (Trophic Index - Kelly
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with TDI index per sample
 #### WARNING: The formula used is [TDI= sum(a.s.v)/ sum(a.v)], NOT the formula
 #### written in the OMNIDIA help file, which is [TDI= sum(a.s.v)/ sum(s.v)].
 #### This corrected formula matches the OMNIDIA results.
-#' @export
 diat_tdi <- function(resultLoad){
 
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -80,13 +124,23 @@ diat_tdi <- function(resultLoad){
   }
 
   taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
+
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
+
+  #Loads the species list specific for this index
+  #tdiDB <- read.csv("../Indices/tdi.csv") #uses the external csv file
+  tdiDB <- DiaThor::tdi
 
   #removes NA from taxaIn
   taxaIn[is.na(taxaIn)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  #if acronyms exist, use them, its more precise
+  #if there is an acronym column, it removes it and stores it for later
+  #exact matches species in input data to acronym from index
+  taxaIn$tdi_s <- tdiDB$tdi_s[match(trimws(taxaIn$acronym), trimws(tdiDB$acronym))]
+  taxaIn$tdi_v <- tdiDB$tdi_v[match(trimws(taxaIn$acronym), trimws(tdiDB$acronym))]
+
 
   #######--------TDI INDEX START --------#############
   print("Calculating TDI index")
@@ -94,8 +148,8 @@ diat_tdi <- function(resultLoad){
   tdi.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
   colnames(tdi.results) <- c("TDI20", "TDI100", "Precision")
   #finds the column
-  tdi_s <- (taxaIn[,"kellys"])
-  tdi_vv <- (taxaIn[,"kellyv"])
+  tdi_s <- (taxaIn[,"tdi_s"])
+  tdi_v <- (taxaIn[,"tdi_v"])
   #PROGRESS BAR
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
@@ -103,8 +157,8 @@ diat_tdi <- function(resultLoad){
     TDItaxaused <- (length(tdi_s) - sum(is.na(taxaIn$tdi_s )))*100 / length(tdi_s)
     #remove the NA
     tdi_s[is.na(tdi_s)] = 0
-    tdi_vv[is.na(tdi_vv)] = 0
-    TDI <- sum((taxaIn[,sampleNumber]*as.double(tdi_s)*as.double(tdi_vv)))/sum(taxaIn[,sampleNumber]*as.double(tdi_vv)) #raw value
+    tdi_v[is.na(tdi_v)] = 0
+    TDI <- sum((taxaIn[,sampleNumber]*as.double(tdi_s)*as.double(tdi_v)))/sum(taxaIn[,sampleNumber]*as.double(tdi_v)) #raw value
     TDI20 <- (-4.75*TDI)+24.75
     TDI100 <- (TDI*25)-25
     tdi.results[sampleNumber, ] <- c(TDI20, TDI100,TDItaxaused)
@@ -127,16 +181,15 @@ diat_tdi <- function(resultLoad){
 }
 
 
-###### ---------- FUNCTION FOR IDP INDEX: TEST IN OMNIDIA (Pampean Index - Gomez & Licursi)  ---------- ########
+###### ---------- FUNCTION FOR IDP INDEX: DONE (Pampean Index - Gomez & Licursi)  ---------- ########
 #### IN THIS SECTION WE CALCULATE IDP INDEX (Pampean Index - Gomez & Licursi)
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with IDP index per sample
-#' @export
 diat_idp <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -158,16 +211,16 @@ diat_idp <- function(resultLoad){
   #exact matches species in input data to acronym from index
   taxaIn$idp_v <- idpDB$idp_v[match(trimws(taxaIn$acronym), trimws(idpDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$idp_v[i])){
-      taxaIn$idp_v[i] <- idpDB$idp_v[match(trimws(rownames(taxaIn[i,])), trimws(idpDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$idp_v[i])){
+  #     taxaIn$idp_v[i] <- idpDB$idp_v[match(trimws(rownames(taxaIn[i,])), trimws(idpDB$fullspecies))]
+  #   }
+  # }
 
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------IDP INDEX START --------#############
   print("Calculating IDP index")
@@ -180,6 +233,7 @@ diat_idp <- function(resultLoad){
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
     IDPtaxaused <- (length(idp_v) - sum(is.na(taxaIn$idp_v )))*100 / length(idp_v)
+    #print(paste("Total taxa used for IDP:", sum(!is.na(taxaIn$idp_v ))))
     #remove the NA
     idp_v[is.na(idp_v)] = 0
     IDP <- sum((taxaIn[,sampleNumber]*as.double(idp_v)))/sum(taxaIn[which(idp_v > 0),sampleNumber]) #raw value
@@ -194,6 +248,7 @@ diat_idp <- function(resultLoad){
   #######--------IDP INDEX: END--------############
   #PRECISION
   resultsPath <- resultLoad[[4]]
+
   precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
   precisionmatrix <- cbind(precisionmatrix, idp.results$Precision)
   names(precisionmatrix)[names(precisionmatrix)=="idp.results$Precision"] <- "IDP"
@@ -205,74 +260,14 @@ diat_idp <- function(resultLoad){
 }
 
 
-###### ---------- FUNCTION FOR CEE INDEX: INCOMPLETE: CANT CALCULATE?  (Descy & Coste 1991)---------- ########
-### INPUT: resultLoad Data cannot be in Relative Abuncance
-### OUTPUTS: dataframe with CEE index per sample
-#' @export
-diat_cee <- function(resultLoad){
-
-  # First checks if species data frames exist. If not, loads them from CSV files
-  if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
-    #handles cancel button
-    if (missing(resultLoad)){
-      stop("Calculations cancelled")
-    }
-  }
-
-  taxaIn <- resultLoad[[2]]
-  taxaInRA <- resultLoad[[1]]
-
-  #removes NA from taxaIn
-  taxaIn[is.na(taxaIn)] <- 0
-
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
-
-  #######--------CEE INDEX START --------#############
-  print("Calculating CEE index")
-  cee.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(cee.results) <- c("CEE", "CEE20", "Precision")
-  #finds the column
-  cee_v <- (taxaIn[,"cee_v"])
-  #PROGRESS BAR
-  pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
-  for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
-    #how many taxa will be used to calculate?
-    CEEtaxaused <- (length(cee_v) - sum(is.na(cee_v)))
-    #remove the NA
-    cee_v[is.na(cee_v)] = 0
-    CEE <- sum((taxaIn[,sampleNumber]*as.double(cee_v)))/sum(taxaIn[which(cee_v > 0),sampleNumber]) #raw value
-    CEE20 <- 1+(1.91*CEE)
-    cee.results[sampleNumber, ] <- c(CEE, CEE20,CEEtaxaused)
-    #update progressbar
-    setTxtProgressBar(pb, sampleNumber)
-  }
-  #outputs: IDP, IDP20
-  #close progressbar
-  close(pb)
-  #######--------CEE INDEX: END--------############
-  #PRECISION
-  resultsPath <- resultLoad[[4]]
-  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
-  precisionmatrix <- cbind(precisionmatrix, cee.results$Precision)
-  names(precisionmatrix)[names(precisionmatrix)=="cee.results$Precision"] <- "CEE"
-  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
-  #END PRECISION
-
-  rownames(cee.results) <- resultLoad[[3]]
-  return(cee.results)
-}
-
-###### ---------- FUNCTION FOR DES INDEX: NEW TEST DONE (Descy 1979) ---------- ########
+###### ---------- FUNCTION FOR DES INDEX: DONE (Descy 1979) ---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with DES index per sample
-#' @export
 diat_des <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -296,21 +291,21 @@ diat_des <- function(resultLoad){
   taxaIn$des_v <- desDB$des_v[match(taxaIn$acronym, trimws(desDB$acronym))]
   taxaIn$des_s <- desDB$des_s[match(taxaIn$acronym, trimws(desDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$des_s[i]) | is.na(taxaIn$des_v[i])){
-      taxaIn$des_v[i] <- desDB$des_v[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
-      taxaIn$des_s[i] <- desDB$des_s[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$des_s[i]) | is.na(taxaIn$des_v[i])){
+  #     taxaIn$des_v[i] <- desDB$des_v[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
+  #     taxaIn$des_s[i] <- desDB$des_s[match(trimws(rownames(taxaIn[i,])), trimws(desDB$fullspecies))]
+  #   }
+  # }
 
   ### FINISH NEW CORRECTIONS
 
   #removes NA from taxaIn
   taxaIn[is.na(taxaIn)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol <- which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------DES INDEX START --------#############
   print("Calculating DES index")
@@ -350,15 +345,14 @@ diat_des <- function(resultLoad){
   return(des.results)
 }
 
-###### ---------- FUNCTION FOR EPID INDEX: NEW TEST DONE (Dell'Uomo) ---------- ########
+###### ---------- FUNCTION FOR EPID INDEX:DONE (Dell'Uomo) ---------- ########
 ### INPUT: resultLoad Data. Data needs to be in RA for this index, so if it isn't, the function converts it
 ### OUTPUTS: dataframe with EPID index per sample
-#' @export
 diat_epid <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -377,17 +371,17 @@ diat_epid <- function(resultLoad){
   #exact matches species in input data to acronym from index
   taxaIn$epid_v <- epidDB$epid_v[match(taxaIn$acronym, trimws(epidDB$acronym))]
   taxaIn$epid_s <- epidDB$epid_s[match(taxaIn$acronym, trimws(epidDB$acronym))]
+#
+#   #the ones still not found (NA), try against fullspecies
+#   for (i in 1:nrow(taxaIn)) {
+#     if (is.na(taxaIn$epid_s[i]) | is.na(taxaIn$epid_v[i])){
+#       taxaIn$epid_v[i] <- epidDB$epid_v[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
+#       taxaIn$epid_s[i] <- epidDB$epid_s[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
+#     }
+#   }
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$epid_s[i]) | is.na(taxaIn$epid_v[i])){
-      taxaIn$epid_v[i] <- epidDB$epid_v[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
-      taxaIn$epid_s[i] <- epidDB$epid_s[match(trimws(rownames(taxaIn[i,])), trimws(epidDB$fullspecies))]
-    }
-  }
-
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------EPID INDEX START --------#############
   print("Calculating EPID index")
@@ -426,15 +420,14 @@ diat_epid <- function(resultLoad){
   return(epid.results)
 }
 
-###### ---------- FUNCTION FOR IDAP INDEX: NEW TEST DONE (Indice Diatomique Artois-Picardie) ---------- ########
+###### ---------- FUNCTION FOR IDAP INDEX: DONE (Indice Diatomique Artois-Picardie) ---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with IDAP index per sample
-#' @export
 diat_idap <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -455,17 +448,17 @@ diat_idap <- function(resultLoad){
   taxaIn$idap_v <- idapDB$idap_v[match(taxaIn$acronym, trimws(idapDB$acronym))]
   taxaIn$idap_s <- idapDB$idap_s[match(taxaIn$acronym, trimws(idapDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$idap_s[i]) | is.na(taxaIn$idap_v[i])){
-      taxaIn$idap_v[i] <- idapDB$idap_v[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
-      taxaIn$idap_s[i] <- idapDB$idap_s[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$idap_s[i]) | is.na(taxaIn$idap_v[i])){
+  #     taxaIn$idap_v[i] <- idapDB$idap_v[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
+  #     taxaIn$idap_s[i] <- idapDB$idap_s[match(trimws(rownames(taxaIn[i,])), trimws(idapDB$fullspecies))]
+  #   }
+  # }
 
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------IDAP INDEX START --------#############
   print("Calculating IDAP index")
@@ -507,15 +500,13 @@ diat_idap <- function(resultLoad){
 
 
 
-###### ---------- FUNCTION FOR IDCH INDEX: NEED ACRONYMS IN CVS FILE (Swiss Diatom Index)  ---------- ########
+###### ---------- FUNCTION FOR IDCH INDEX: DONE (Swiss Diatom Index, Lecointe et al., 2003)  ---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with IDCH index per sample
-#' @export
 diat_idch <- function(resultLoad){
-  print("starting idch")
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -535,16 +526,16 @@ diat_idch <- function(resultLoad){
   taxaIn$idch_v <- idchDB$idch_v[match(taxaIn$acronym, trimws(idchDB$acronym))]
   taxaIn$idch_s <- idchDB$idch_s[match(taxaIn$acronym, trimws(idchDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$idch_s[i]) | is.na(taxaIn$idch_v[i])){
-      taxaIn$idch_v[i] <- idchDB$idch_v[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
-      taxaIn$idch_s[i] <- idchDB$idch_s[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$idch_s[i]) | is.na(taxaIn$idch_v[i])){
+  #     taxaIn$idch_v[i] <- idchDB$idch_v[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
+  #     taxaIn$idch_s[i] <- idchDB$idch_s[match(trimws(rownames(taxaIn[i,])), trimws(idchDB$fullspecies))]
+  #   }
+  # }
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------IDCH INDEX START --------#############
   print("Calculating IDCH index")
@@ -558,7 +549,7 @@ diat_idch <- function(resultLoad){
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
-    IDCHtaxaused <- (length(idch_s) - sum(is.na(taxaIn$idch_s )))*100 / length(idch_s)
+    IDCHtaxaused <- (sum(!is.na(taxaIn$idch_s))*100) / length(idch_s)
     #remove the NA
     idch_s[is.na(idch_s)] = 0
     idch_v[is.na(idch_v)] = 0
@@ -584,15 +575,14 @@ diat_idch <- function(resultLoad){
 
 }
 
-###### ---------- FUNCTION FOR ILM INDEX: NEW TEST DONE (Leclercq & Maq. 1988)---------- ########
+###### ---------- FUNCTION FOR ILM INDEX: DONE (Leclercq & Maq. 1988)---------- ########
 ### INPUT: resultLoad Data
 ### OUTPUTS: dataframe with ILM index per sample
-#' @export
 diat_ilm <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -614,17 +604,17 @@ diat_ilm <- function(resultLoad){
   taxaIn$ilm_v <- ilmDB$ilm_v[match(taxaIn$acronym, trimws(ilmDB$acronym))]
   taxaIn$ilm_s <- ilmDB$ilm_s[match(taxaIn$acronym, trimws(ilmDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$ilm_s[i]) | is.na(taxaIn$ilm_v[i])){
-      taxaIn$ilm_v[i] <- ilmDB$ilm_v[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
-      taxaIn$ilm_s[i] <- ilmDB$ilm_s[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$ilm_s[i]) | is.na(taxaIn$ilm_v[i])){
+  #     taxaIn$ilm_v[i] <- ilmDB$ilm_v[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
+  #     taxaIn$ilm_s[i] <- ilmDB$ilm_s[match(trimws(rownames(taxaIn[i,])), trimws(ilmDB$fullspecies))]
+  #   }
+  # }
 
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------ILM INDEX START --------#############
   print("Calculating ILM index")
@@ -639,7 +629,8 @@ diat_ilm <- function(resultLoad){
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
     ILMtaxaused <- (length(ilm_s) - sum(is.na(taxaIn$ilm_s )))*100 / length(ilm_s)
-
+    #print(paste("Total taxa input for ILM:", length(ilm_s)))
+    #print(paste("Total taxa used for ILM:", sum(!is.na(taxaIn$ilm_s ))))
     #remove the NA
     ilm_s[is.na(ilm_s)] = 0
     ilm_v[is.na(ilm_v)] = 0
@@ -664,15 +655,14 @@ diat_ilm <- function(resultLoad){
   return(ilm.results)
 }
 
-###### ---------- FUNCTION FOR LOBO INDEX: NEW TEST DONE (Lobo et al. 2002)---------- ########
+###### ---------- FUNCTION FOR LOBO INDEX: DONE (Lobo et al. 2002)---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with LOBO index per sample
-#' @export
 diat_lobo <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -696,20 +686,20 @@ diat_lobo <- function(resultLoad){
   taxaIn$lobo_v <- loboDB$lobo_v[match(taxaIn$acronym, trimws(loboDB$acronym))]
   taxaIn$lobo_s <- loboDB$lobo_s[match(taxaIn$acronym, trimws(loboDB$acronym))]
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$lobo_s[i]) | is.na(taxaIn$lobo_v[i])){
-      taxaIn$lobo_v[i] <- loboDB$lobo_v[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
-      taxaIn$lobo_s[i] <- loboDB$lobo_s[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$lobo_s[i]) | is.na(taxaIn$lobo_v[i])){
+  #     taxaIn$lobo_v[i] <- loboDB$lobo_v[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
+  #     taxaIn$lobo_s[i] <- loboDB$lobo_s[match(trimws(rownames(taxaIn[i,])), trimws(loboDB$fullspecies))]
+  #   }
+  # }
 
 
   #removes NA from taxaIn
   taxaIn[is.na(taxaIn)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------LOBO INDEX START --------#############
   print("Calculating LOBO index")
@@ -748,171 +738,14 @@ diat_lobo <- function(resultLoad){
   return(lobo.results)
 }
 
-###### ---------- FUNCTION FOR SHE INDEX: INCOMPLETE: CANT CALCULATE?  (Schiefele & Schreiner)---------- ########
-### INPUT: resultLoad Data cannot be in Relative Abuncance
-### OUTPUTS: dataframe with SHE index per sample
-#' @export
-diat_she <- function(resultLoad){
-
-  # First checks if species data frames exist. If not, loads them from CSV files
-  if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
-    #handles cancel button
-    if (missing(resultLoad)){
-      stop("Calculations cancelled")
-    }
-  }
-
-  taxaInRA <- resultLoad[[2]]
-
-  #Loads the species list specific for this index
-  #sheDB <- read.csv("../Indices/she.csv") #uses the external csv file
-  sheDB <- DiaThor::she
-
-
-  #creates a species column with the rownames to fit in the script
-  taxaIn$species <- row.names(taxaIn)
-
-  #exact matches species in input data to acronym from index
-  taxaIn$she_v <- sheDB$she_v[match(taxaIn$acronym, trimws(sheDB$acronym))]
-
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$she_v[i])){
-      taxaIn$she_v[i] <- sheDB$she_v[match(taxaIn$species[i], trimws(sheDB$fullspecies))]
-    }
-  }
-
-  #removes NA from taxaInRA
-  taxaInRA[is.na(taxaInRA)] <- 0
-
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
-
-  #######--------SHE INDEX START --------#############
-  print("Calculating SHE index")
-  #creates results dataframe
-  she.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(she.results) <- c("SHE", "SHE20", "Precision")
-  #finds the column
-  she_v <- (taxaInRA[,"she_v"])
-  #PROGRESS BAR
-  pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
-  for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
-    #how many taxa will be used to calculate?
-    SHEtaxaused <- (length(she_v) - sum(is.na(taxaIn$she_v )))*100 / length(she_v)
-
-    #remove the NA
-    she_v[is.na(she_v)] = 0
-    SHE <- sum((taxaInRA[,sampleNumber]*as.double(she_v)))/sum(taxaInRA[,sampleNumber]*as.double(she_v)) #raw value
-    SHE20 <- (-4.75*SHE)-3.75
-    she.results[sampleNumber, ] <- c(SHE, SHE20,SHEtaxaused)
-    #update progressbar
-    setTxtProgressBar(pb, sampleNumber)
-  }
-  #close progressbar
-  close(pb)
-  #######--------SHE INDEX: END--------############
-  #PRECISION
-  resultsPath <- resultLoad[[4]]
-  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
-  precisionmatrix <- cbind(precisionmatrix, she.results$Precision)
-  names(precisionmatrix)[names(precisionmatrix)=="she.results$Precision"] <- "SHE"
-  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
-  #END PRECISION
-
-  rownames(she.results) <- resultLoad[[3]]
-  return(she.results)
-}
-
-###### ---------- FUNCTION FOR WAT INDEX: INCOMPLETE: CANT CALCULATE? (Watanabe et al. 1990) ---------- ########
-### INPUT: resultLoad Data cannot be in Relative Abuncance
-### OUTPUTS: dataframe with WAT index per sample
-#' @export
-diat_wat <- function(resultLoad){
-
-  # First checks if species data frames exist. If not, loads them from CSV files
-  if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
-    #handles cancel button
-    if (missing(resultLoad)){
-      stop("Calculations cancelled")
-    }
-  }
-
-  taxaInRA <- resultLoad[[2]]
-
-  #Loads the species list specific for this index
-  #watDB <- read.csv("../Indices/wat.csv") #uses the external csv file
-  watDB <- DiaThor::wat
-
-  #creates a species column with the rownames to fit in the script
-  taxaIn$species <- row.names(taxaIn)
-
-
-  #exact matches species in input data to acronym from index
-  taxaIn$wat_v <- watDB$wat_v[match(taxaIn$acronym, trimws(watDB$acronym))]
-
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$wat_v[i]) | is.na(taxaIn$wat_v[i])){
-      taxaIn$wat_v[i] <- watDB$wat_v[match(trimws(rownames(taxaIn[i,])), trimws(watDB$fullspecies))]
-    }
-  }
-
-  #removes NA from taxaInRA
-  taxaInRA[is.na(taxaInRA)] <- 0
-
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
-
-  #######--------WAT INDEX START --------#############
-  print("Calculating WAT index")
-  #creates results dataframe
-  wat.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
-  colnames(wat.results) <- c("WAT", "WAT20", "Precision")
-
-  #finds the column
-  wat_v <- as.data.frame(taxaInRA[,"wat_v"])
-  colnames(wat_v) <- "wat_v"
-  #PROGRESS BAR
-  pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
-  for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
-    #how many taxa will be used to calculate?
-    WATtaxaused <- (length(she_v) - sum(is.na(taxaIn$wat_v )))*100 / length(wat_v)
-    #remove the NA
-    wat_v[is.na(wat_v)] = 0
-    WAT <- 50+ 0.5*(sum(taxaInRA[which(wat_v$wat_v=="2"),sampleNumber])- sum(taxaInRA[which(wat_v$wat_v=="1"),sampleNumber]))
-    #WAT <- sum((taxaInRA[,sampleNumber]*as.double(wat_v)))/sum(taxaInRA[,sampleNumber]*as.double(wat_v)) #raw value
-    WAT20 <- (0.190*WAT)+1
-    wat.results[sampleNumber, ] <- c(WAT, WAT20,WATtaxaused)
-    #update progressbar
-    setTxtProgressBar(pb, sampleNumber)
-  }
-  #close progressbar
-  close(pb)
-  #######--------WAT INDEX: END--------############
-  #PRECISION
-  resultsPath <- resultLoad[[4]]
-  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
-  precisionmatrix <- cbind(precisionmatrix, wat.results$Precision)
-  names(precisionmatrix)[names(precisionmatrix)=="wat.results$Precision"] <- "WAT"
-  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
-  #END PRECISION
-
-  rownames(wat.results) <- resultLoad[[3]]
-  return(wat.results)
-}
-
-###### ---------- FUNCTION FOR SLA INDEX: NEW TEST DONE  (Sladecek 1986)---------- ########
+###### ---------- FUNCTION FOR SLA INDEX: DONE  (Sladecek 1986)---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with SLA index per sample
-#' @export
 diat_sla <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -928,18 +761,18 @@ diat_sla <- function(resultLoad){
   #exact matches species in input data to acronym from index
   taxaIn$sla_v <- slaDB$sla_v[match(taxaIn$acronym, trimws(slaDB$acronym))]
   taxaIn$sla_s <- slaDB$sla_s[match(taxaIn$acronym, trimws(slaDB$acronym))]
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaIn)) {
-    if (is.na(taxaIn$sla_s[i]) | is.na(taxaIn$sla_v[i])){
-      taxaIn$sla_v[i] <- slaDB$sla_v[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
-      taxaIn$sla_s[i] <- slaDB$sla_s[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$sla_s[i]) | is.na(taxaIn$sla_v[i])){
+  #     taxaIn$sla_v[i] <- slaDB$sla_v[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
+  #     taxaIn$sla_s[i] <- slaDB$sla_s[match(trimws(rownames(taxaIn[i,])), trimws(slaDB$fullspecies))]
+  #   }
+  # }
   #removes NA from taxaInRA
   taxaIn[is.na(taxaIn)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaIn)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaIn)=="acronym")
 
   #######--------SLA INDEX START --------#############
   print("Calculating SLA index")
@@ -977,19 +810,17 @@ diat_sla <- function(resultLoad){
   #END PRECISION
 
   rownames(sla.results) <- resultLoad[[3]]
-  print("980")
   return(sla.results)
 }
 
-###### ---------- FUNCTION FOR SPEAR INDEX: NEW TEST DONE (Wood et al. 2019) ---------- ########
+###### ---------- FUNCTION FOR SPEAR INDEX: DONE (Wood et al. 2019) ---------- ########
 ### INPUT: resultLoad Data cannot be in Relative Abuncance
 ### OUTPUTS: dataframe with SPEAR index per sample
-#' @export
 diat_spear <- function(resultLoad){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
-    print("Please run the loadData() function first to enter your species data in the correct format")
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
     #handles cancel button
     if (missing(resultLoad)){
       stop("Calculations cancelled")
@@ -1003,21 +834,21 @@ diat_spear <- function(resultLoad){
   spearDB <- DiaThor::spear
 
   #exact matches species in input data to acronym from index
-  taxaInRA$spear_v <- spearDB$spear_v[match(taxaInRA$acronym, trimws(spearDB$acronym))]
+  taxaInRA$spear_v <- as.integer(spearDB$spear_v[match(taxaInRA$acronym, trimws(spearDB$acronym))])
 
-  #the ones still not found (NA), try against fullspecies
-  for (i in 1:nrow(taxaInRA)) {
-    if (is.na(taxaInRA$spear_v[i])){
-      taxaInRA$spear_v[i] <- spearDB$spear_v[match(trimws(rownames(taxaInRA[i,])), trimws(spearDB$fullspecies))]
-    }
-  }
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaInRA)) {
+  #   if (is.na(taxaInRA$spear_v[i])){
+  #     taxaInRA$spear_v[i] <- spearDB$spear_v[match(trimws(rownames(taxaInRA[i,])), trimws(spearDB$fullspecies))]
+  #   }
+  # }
 
 
   #removes NA from taxaInRA
   taxaInRA[is.na(taxaInRA)] <- 0
 
-  #gets the column named "species", everything before that is a sample
-  lastcol = which(colnames(taxaInRA)=="species")
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaInRA)=="acronym")
 
   #######--------SPEAR INDEX START --------#############
   print("Calculating SPEAR index")
@@ -1030,11 +861,12 @@ diat_spear <- function(resultLoad){
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
-    SPEARtaxaused <- (length(spear_v) - sum(is.na(taxaInRA$spear_v )))*100 / length(spear_v)
+    SPEARtaxaused <- (sum(taxaInRA$spear_v)*100) / length(spear_v)
     #remove the NA
     spear_v[is.na(spear_v)] = 0
 
-    SPEAR <- sum((log(taxaInRA[,sampleNumber]+1)*as.double(spear_v)))/sum(log(taxaInRA[,sampleNumber]+1)) #raw value
+    SPEAR <- sum((log10(taxaInRA[,sampleNumber]+1)*as.double(spear_v)))/sum(log10(taxaInRA[,sampleNumber]+1)) #raw value
+    SPEAR <- SPEAR * 100
     spear.results[sampleNumber, ] <- c(SPEAR, SPEARtaxaused)
     #update progressbar
     setTxtProgressBar(pb, sampleNumber)
@@ -1052,4 +884,233 @@ diat_spear <- function(resultLoad){
 
   rownames(spear.results) <- resultLoad[[3]]
   return(spear.results)
+}
+
+
+
+######## INDICES NOT INCLUDED YET #########
+
+###### ---------- FUNCTION FOR CEE INDEX: NOT INCLUDED (yet)  (Commission for Economical Community metric, Descy & Coste 1991 - A test of methods for assessing water quality based on diatoms)---------- ########
+### INPUT: resultLoad Data cannot be in Relative Abuncance
+### OUTPUTS: dataframe with CEE index per sample
+# # @export
+# diat_cee <- function(resultLoad){
+#
+#   # First checks if species data frames exist. If not, loads them from CSV files
+#   if(missing(resultLoad)) {
+#     print("Please run the diat_loadData() function first to enter your species data in the correct format")
+#     #handles cancel button
+#     if (missing(resultLoad)){
+#       stop("Calculations cancelled")
+#     }
+#   }
+#
+#   taxaIn <- resultLoad[[2]]
+#   #removes NA from taxaIn
+#   taxaIn[is.na(taxaIn)] <- 0
+#
+#   ### START NEW CORRECTIONS
+#   #Loads the species list specific for this index
+#   #idapDB <- read.csv("../Indices/cee.csv") #uses the external csv file
+#   ceeDB <- DiaThor::cee
+#
+#   #creates a species column with the rownames to fit in the script
+#   taxaIn$species <- row.names(taxaIn)
+#
+#   #exact matches species in input data to acronym from index
+#   taxaIn$cee_v <- ceeDB$cee_v[match(taxaIn$acronym, trimws(ceeDB$acronym))]
+#
+#   #gets the column named "acronym", everything before that is a sample
+#   lastcol <- which(colnames(taxaIn)=="acronym")
+#
+#
+#   #--------CEE INDEX START --------###
+#   print("Calculating CEE index")
+#   cee.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
+#   colnames(cee.results) <- c("CEE", "CEE20", "Precision")
+#   #finds the column
+#   cee_v <- (taxaIn[,"cee_v"])
+#
+#   #PROGRESS BAR
+#   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
+#   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
+#     #how many taxa will be used to calculate?
+#     CEEtaxaused <- (length(cee_v) - sum(is.na(cee_v)))
+#     #remove the NA
+#     cee_v[is.na(cee_v)] = 0
+#     CEE <- median(cee_v[which(cee_v != 0)])
+#     #CEE <- sum((taxaIn[,sampleNumber]*as.double(cee_v)))/sum(taxaIn[which(cee_v > 0),sampleNumber]) #raw value
+#     CEE20 <- 1+(1.91*CEE)
+#     cee.results[sampleNumber, ] <- c(CEE, CEE20,CEEtaxaused)
+#     #update progressbar
+#     setTxtProgressBar(pb, sampleNumber)
+#   }
+#   #outputs: IDP, IDP20
+#   #close progressbar
+#   close(pb)
+#   ##--------CEE INDEX: END--------##
+#   #PRECISION
+#   resultsPath <- resultLoad[[4]]
+#   precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+#   precisionmatrix <- cbind(precisionmatrix, cee.results$Precision)
+#   names(precisionmatrix)[names(precisionmatrix)=="cee.results$Precision"] <- "CEE"
+#   write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+#   #END PRECISION
+#
+#   rownames(cee.results) <- resultLoad[[3]]
+#   return(cee.results)
+# }
+
+###### ---------- FUNCTION FOR SHE INDEX: NOT INCLUDED (yet)  (Schiefele & Schreiner)---------- ########
+### INPUT: resultLoad Data cannot be in Relative Abuncance
+### OUTPUTS: dataframe with SHE index per sample
+diat_she <- function(resultLoad){
+
+  # First checks if species data frames exist. If not, loads them from CSV files
+  if(missing(resultLoad)) {
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
+    #handles cancel button
+    if (missing(resultLoad)){
+      stop("Calculations cancelled")
+    }
+  }
+
+  taxaInRA <- resultLoad[[2]]
+
+  #Loads the species list specific for this index
+  #sheDB <- read.csv("../Indices/she.csv") #uses the external csv file
+  sheDB <- DiaThor::she
+
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+  #exact matches species in input data to acronym from index
+  taxaIn$she_v <- sheDB$she_v[match(taxaIn$acronym, trimws(sheDB$acronym))]
+  #
+  #   #the ones still not found (NA), try against fullspecies
+  #   for (i in 1:nrow(taxaIn)) {
+  #     if (is.na(taxaIn$she_v[i])){
+  #       taxaIn$she_v[i] <- sheDB$she_v[match(taxaIn$species[i], trimws(sheDB$fullspecies))]
+  #     }
+  #   }
+
+  #removes NA from taxaInRA
+  taxaInRA[is.na(taxaInRA)] <- 0
+
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaInRA)=="acronym")
+
+  #######--------SHE INDEX START --------#############
+  print("Calculating SHE index")
+  #creates results dataframe
+  she.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
+  colnames(she.results) <- c("SHE", "SHE20", "Precision")
+  #finds the column
+  she_v <- (taxaInRA[,"she_v"])
+  #PROGRESS BAR
+  pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
+  for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
+    #how many taxa will be used to calculate?
+    SHEtaxaused <- (length(she_v) - sum(is.na(taxaIn$she_v )))*100 / length(she_v)
+
+    #remove the NA
+    she_v[is.na(she_v)] = 0
+    SHE <- sum((taxaInRA[,sampleNumber]*as.double(she_v)))/sum(taxaInRA[,sampleNumber]*as.double(she_v)) #raw value
+    SHE20 <- (-4.75*SHE)-3.75
+    she.results[sampleNumber, ] <- c(SHE, SHE20,SHEtaxaused)
+    #update progressbar
+    setTxtProgressBar(pb, sampleNumber)
+  }
+  #close progressbar
+  close(pb)
+  #######--------SHE INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, she.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="she.results$Precision"] <- "SHE"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(she.results) <- resultLoad[[3]]
+  return(she.results)
+}
+
+###### ---------- FUNCTION FOR WAT INDEX: NOT INCLUDED (yet)  (Watanabe et al. 1990) ---------- ########
+### INPUT: resultLoad Data cannot be in Relative Abuncance
+### OUTPUTS: dataframe with WAT index per sample
+diat_wat <- function(resultLoad){
+
+  # First checks if species data frames exist. If not, loads them from CSV files
+  if(missing(resultLoad)) {
+    print("Please run the diat_loadData() function first to enter your species data in the correct format")
+    #handles cancel button
+    if (missing(resultLoad)){
+      stop("Calculations cancelled")
+    }
+  }
+
+  taxaInRA <- resultLoad[[2]]
+
+  #Loads the species list specific for this index
+  #watDB <- read.csv("../Indices/wat.csv") #uses the external csv file
+  watDB <- DiaThor::wat
+
+  #creates a species column with the rownames to fit in the script
+  taxaIn$species <- row.names(taxaIn)
+
+
+  #exact matches species in input data to acronym from index
+  taxaIn$wat_v <- watDB$wat_v[match(taxaIn$acronym, trimws(watDB$acronym))]
+
+  # #the ones still not found (NA), try against fullspecies
+  # for (i in 1:nrow(taxaIn)) {
+  #   if (is.na(taxaIn$wat_v[i]) | is.na(taxaIn$wat_v[i])){
+  #     taxaIn$wat_v[i] <- watDB$wat_v[match(trimws(rownames(taxaIn[i,])), trimws(watDB$fullspecies))]
+  #   }
+  # }
+
+  #removes NA from taxaInRA
+  taxaInRA[is.na(taxaInRA)] <- 0
+
+  #gets the column named "acronym", everything before that is a sample
+  lastcol <- which(colnames(taxaInRA)=="acronym")
+
+  #######--------WAT INDEX START --------#############
+  print("Calculating WAT index")
+  #creates results dataframe
+  wat.results <- data.frame(matrix(ncol = 3, nrow = (lastcol-1)))
+  colnames(wat.results) <- c("WAT", "WAT20", "Precision")
+
+  #finds the column
+  wat_v <- as.data.frame(taxaInRA[,"wat_v"])
+  colnames(wat_v) <- "wat_v"
+  #PROGRESS BAR
+  pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
+  for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
+    #how many taxa will be used to calculate?
+    WATtaxaused <- (length(she_v) - sum(is.na(taxaIn$wat_v )))*100 / length(wat_v)
+    #remove the NA
+    wat_v[is.na(wat_v)] = 0
+    WAT <- 50+ 0.5*(sum(taxaInRA[which(wat_v$wat_v=="2"),sampleNumber])- sum(taxaInRA[which(wat_v$wat_v=="1"),sampleNumber]))
+    #WAT <- sum((taxaInRA[,sampleNumber]*as.double(wat_v)))/sum(taxaInRA[,sampleNumber]*as.double(wat_v)) #raw value
+    WAT20 <- (0.190*WAT)+1
+    wat.results[sampleNumber, ] <- c(WAT, WAT20,WATtaxaused)
+    #update progressbar
+    setTxtProgressBar(pb, sampleNumber)
+  }
+  #close progressbar
+  close(pb)
+  #######--------WAT INDEX: END--------############
+  #PRECISION
+  resultsPath <- resultLoad[[4]]
+  precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
+  precisionmatrix <- cbind(precisionmatrix, wat.results$Precision)
+  names(precisionmatrix)[names(precisionmatrix)=="wat.results$Precision"] <- "WAT"
+  write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
+  #END PRECISION
+
+  rownames(wat.results) <- resultLoad[[3]]
+  return(wat.results)
 }
