@@ -84,19 +84,24 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
     print ("Searching for acronyms in exact match, please wait...")
     #exact match by species name (fast)
     species_df$acronym <- acronymDB$acronym[match(trimws(rownames(species_df)), acronymDB$species)]
+    #species_df_pre <- species_df
+    #species_df <- species_df_pre
     #with the unmatched exact, try heuristic
     print ("Searching for acronyms in heuristic match, please wait...")
     #PROGRESS BAR FOR HEURISTIC SEARCH OF ACRONYMS
-    ntot <- sum(is.na(species_df$acronym))
+    ntot <- nrow(species_df)
     pb <- txtProgressBar(min = 1, max = ntot, style = 3)
     for(i in 1:ntot) {
       if (is.na(species_df$acronym[i])){
         species_df$acronym[i] <- acronymDB$acronym[stringdist::amatch(trimws(rownames(species_df[i,])), trimws(acronymDB$species), maxDist=maxDistTaxa, matchNA = F)]
-        setTxtProgressBar(pb, i)
       }
+      setTxtProgressBar(pb, i)
     }
     close(pb)
   }
+
+  #print(paste("Updated acronyms: ", updatedacronyms))
+  print(paste("Acronyms were found for ", nrow(species_df) - sum(is.na(species_df$acronym)) , " species out of ", length(species_df$acronym), sep=""))
 
   #original species and acronym list
   speciesList <- trimws(rownames(species_df))
@@ -125,14 +130,16 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
         }
       }
     }
-    print(paste("Updated acronyms: ", updatedacronyms))
+    if (updatedacronyms > 0){
+      print(paste(updatedacronyms, "updated acronyms were found and exported"))
+
+    }
+
     #if (updatedacronyms==0){keepupdating <- F}
   #}
 
 
 
-  #print(paste("Updated acronyms: ", updatedacronyms))
-  print(paste("Acronyms were found for ", nrow(species_df) - sum(is.na(species_df$acronym)) , " species out of ", length(species_df$acronym), sep=""))
   #taxa recognized by acronym
   print("Exporting list of species with the acronyms found by heuristic search. NA= not found")
   outacronyms <- cbind(speciesList, species_df$new_species, acronymList, species_df$acronym)
@@ -229,10 +236,10 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   } else {
     print("Latest version of Diat.barcode unknown")
     print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
+    dbc <- DiaThor:::dbc_offline
   }
   ### Double checks that database got loaded correctly or cancels alltogether
   if (exists("dbc")){
-
   } else { #if everything fails, cancels
     stop("Database could not be downloaded or retrieved from internal package. Cancelling calculations")
   }
@@ -247,21 +254,46 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   # first occurence. Ecological indices usually match in all strains of the same species
   #fuzzy matching
 
-  taxaInSp <- species_df[stringdist::ain(row.names(species_df), ecodata[,"species"], maxDist=maxDistTaxa, matchNA = F),]
-  numberOfSamples <- ncol(taxaInSp) #Saves the number of columns that correspond to samples
-  sampleNames <- colnames(taxaInSp) #Saves the names of the samples
-  removeelem <- c("acronym","new_species","species") #Removes columns not samples
-  sampleNames <- sampleNames[!(sampleNames %in% removeelem)]
+  #NEW SEARCH
+  rownames(species_df) <- trimws(rownames(species_df))
+  taxaInSp <- as.data.frame(matrix(nrow=nrow(species_df), ncol = (ncol(species_df)+ncol(ecodata))))
+  #species_df section
+  taxaInSp[1:nrow(species_df),1:ncol(species_df)] <- species_df[1:nrow(species_df),1:ncol(species_df)] #copies species_df into taxaInSp
+  colnames(taxaInSp)[1:ncol(species_df)] <- colnames(species_df) #copies column names
+  rownames(taxaInSp) <- rownames(species_df) #copies row names
+  taxaInSp$recognizedSp <- NA #creates a new column with the recognized species
 
+  #ecodata_section
+  lastcolspecies_df <-  which(colnames(taxaInSp)=="new_species") #gets last column of taxaInSp with species_df data
+  colnames(taxaInSp)[(lastcolspecies_df+1):(ncol(taxaInSp)-1)] <- colnames(ecodata) #copies column names
+  #PROGRESS BAR
+  pb <- txtProgressBar(min = 1, max = nrow(taxaInSp), style = 3)
+  for (i in 1:nrow(taxaInSp)){
+    searchvectr <- ecodata[stringdist::ain(ecodata[,"species"],row.names(species_df)[i], maxDist=maxDistTaxa, matchNA = F),] #seaches species by species
+    if (nrow(searchvectr)==1){ #if it finds only one species, add that
+      taxaInSp[i,(lastcolspecies_df + 1):(ncol(taxaInSp)-1)] <- searchvectr
+      taxaInSp[i,"recognizedSp"] <- searchvectr$species
+    } else if (nrow(searchvectr)>1){ #if it finds multiple species, keeps the one with the lower distance
+      searchvectr <- searchvectr[which(stringdist::stringdist(searchvectr$species, row.names(species_df)[i]) == min(stringdist::stringdist(searchvectr$species, row.names(species_df)[i]))),]
+      if (nrow(searchvectr) > 1) { #still finds more than one with the same lower distance, keeps the first
+        searchvectr <- searchvectr[1,]
+      }
+      taxaInSp[i,(lastcolspecies_df + 1):(ncol(taxaInSp)-1)] <- searchvectr
+      taxaInSp[i,"recognizedSp"] <- searchvectr$species
 
-  taxaInEco <- ecodata[stringdist::ain(ecodata[,"species"], row.names(species_df), maxDist=maxDistTaxa),] #FUZZY matching species in table of indices
-  taxaInEco <- taxaInEco[!duplicated(taxaInEco[,"species"]),] #we have to make taxaInEco same length as taxaInSp removing duplicate species
-  #taxaInEco <- taxaInEco[order(taxaInEco$species),] #reorder alphabetically
-
-  #and we bind taxaInSp and taxaInEco
-  taxaInEco <- cbind(taxaInSp, taxaInEco) #dataframe to be exported for morpho
-
+    } else if (nrow(searchvectr)==0){ #species not found at all
+      taxaInSp[i,"recognizedSp"] <- "Not found"
+    }
+    #update progressbar
+    setTxtProgressBar(pb, i)
+  }
+  #close progressbar
+  close(pb)
+  #END NEW SEARCH
+  taxaInEco <- taxaInSp
   taxaIn <- species_df #dataframe to be exported for indices
+  taxaIncluded <- as.data.frame(rownames(taxaInEco)[which(taxaInEco$recognizedSp != "Not found")])
+  taxaExcluded <- as.data.frame(rownames(taxaInEco)[which(taxaInEco$recognizedSp == "Not found")])
 
   #remove the acronym col and move it to the back
   acronym_col <- taxaIn$acronym
@@ -288,23 +320,22 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   removeelem <- c("acronym","new_species","species") #Removes columns not samples
   sampleNames <- sampleNames[!(sampleNames %in% removeelem)]
 
-  taxaIncluded <- as.data.frame(rownames(taxaInEco))
 
+  if (nrow(taxaIncluded) == 0) {
+    print("No taxa were recognized for morphology analysis. Check taxonomy instructions for the package")
+  }
   #Exports included taxa in morphology analyses
   colnames(taxaIncluded) <- "Eco/Morpho"
   write.csv(taxaIncluded, paste(resultsPath,"\\Taxa included.csv", sep=""))
   print(paste("Number of taxa recognized for morphology:", nrow(taxaIncluded), "-- Detailed list in 'Taxa included.csv'"))
-  # if (nrow(taxaIn)==0){
-  #   stop("No taxa were recognized from the input data. Check taxonomy instructions for the package")
-  # }
 
   #also makes a matrix for all the taxa left out, for the user to review
-  '%out%' <- function(x,y)!('%in%'(x,y))
-  taxaOut <- species_df[row.names(species_df)%out%row.names(taxaInSp),]
-  print(paste("Number of taxa excluded for morphology:", nrow(taxaOut), "-- Detailed list in 'Taxa excluded.csv'" ))
-  taxaExluded <- as.data.frame(rownames(taxaOut))
-  colnames(taxaExluded) <- "Eco/Morpho"
-  write.csv(taxaExluded, paste(resultsPath,"\\Taxa excluded.csv", sep=""))
+  colnames(taxaExcluded) <- "Eco/Morpho"
+  write.csv(taxaExcluded, paste(resultsPath,"\\Taxa excluded.csv", sep=""))
+  print(paste("Number of taxa excluded for morphology:", nrow(taxaExcluded), "-- Detailed list in 'Taxa excluded.csv'" ))
+
+  #Has to clean the TaxaInEco for those species that were not found
+  taxaInEco <- taxaInEco[which(taxaInEco$recognizedSp != "Not found"),]
 
   #creates a blank precision matrix for the indices
   precisionmatrix <- as.data.frame(sampleNames)
