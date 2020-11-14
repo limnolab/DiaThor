@@ -1,38 +1,56 @@
-#' These functions calculate morphological and ecological parameters from the input data
+#' Calculate morphological and ecological parameters for diatoms
 #' @param resultLoad The result dataframe obtained from the loadFiles function
 #' @param vandamReports Boolean. If set to 'TRUE' the detailed reports for the Van Dam classifications will be reported in the Output. Default = TRUE
 #' @description
-#' The input for these functions is the resulting dataframe obtained from the loadFiles function to calculate morphological parameters, diversity values (using the vegan package), ecological guilds and the Van Dam ecological preferences
-#' The morphological data (size classes, chlorophlasts) is obtained from the Diat.Barcode project. Besides citing this package, the Diat.Barcode project should also be cited if the package is used, as follows:
+#' The input for these functions is the resulting dataframe obtained from the diat_loadData() function to calculate morphological parameters, diversity values (using the vegan package), ecological guilds and the Van Dam ecological preferences
+#' The morphological data (size classes, chlorophlasts) is obtained from the Diat.Barcode project. Besides citing DiaThor, the Diat.Barcode project should also be cited if the package is used, as follows:
 #' \itemize{
-#' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès, 2018, "Diat.barcode, an open-access barcode library for diatoms", https://doi.org/10.15454/TOMBYZ, Portail Data Inra, V1
+#' \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
+#' }
+#' Sample data in the examples is taken from:
+#' \itemize{
+#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
+#' }
+#' Size class classification is obtained from:
+#' \itemize{
+#' \item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
 #' }
 #' Guild classification is obtained from:
 #' \itemize{
-#' \item CITA GUILDS
+#' \item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
 #' }
 #' Van Dam classification is obtained form:
 #' \itemize{
-#' \item CITA VAN DAM
+#' \item Van Dam, H., Mertens, A., & Sinkeldam, J. (1994). A coded checklist and ecological indicator values of freshwater diatoms from the Netherlands. Netherland Journal of Aquatic Ecology, 28(1), 117-133.
+#' }
+#' Diversity index (Shannons H') is calculated using the vegan package, following:
+#' \itemize{
+#' \item Shannon, C. E., and Weaver, W. (1949). ‘The Mathematical Theory of Communication.’ (University of Illinios Press: Urbana, IL, USA.)
 #' }
 #' @examples
-#' # EXAMPLE 1:
-#' data("environmental_data") #ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' data("species_data")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' # EXAMPLE 2: Loads sample data where species are in absolute densities
-#' data("environmental_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' data("species_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' # Calculates everything
-#' thispackage::calculate_everything(species_df)
-#' @concepts ecology, diatom, bioindicator, biotic indices
+#' # Example using sample data included in the package (sampleData):
+#' data("diat_sampleData")
+#' # First, the diat_Load() function has to be called to read the data
+#' # The data will be stored into a list (loadedData)
+#' # And an output folder will be selected through a dialog box
+#' loadedData <- diat_loadData(diat_sampleData)
+#' # Next, we can run any function in the package to obtain results from that dataframe. Check the console to see if enough species/acronyms were
+#' # automatically recognized from your data, or if you need to correct the input data
+#' morphoResults <- diat_morpho(loadedData)
+#' #for instance, we get a list with 3 dataframes with morphological data. Let's check one out:
+#' morphoResults[[1]] #this shows the % abundance of diatoms with different number of chloroplasts in each sample
+#' morphoResults[[2]] #this shows the % abundance of diatoms with different shapes of chloroplasts in each sample
+#' morphoResults[[3]] #this shows the total biovolume in each sample
+#' # or calculate the % of cells belonging to each size class
+#' sizeResults <- diat_size(loadedData)
+#' @keywords ecology, diatom, bioindicator, biotic indices
+#' @encoding UTF-8
 #' @export diat_morpho
 #' @export diat_size
 #' @export diat_diversity
 #' @export diat_guilds
 #' @export diat_vandam
 #'
-
-
 
 ###### ---------- FUNCTION FOR MORPHOLOGICAL DATA: DONE ---------- ########
 #### IN THIS SECTION WE CALCULATE MORPHOLOGICAL VARIABLES
@@ -143,6 +161,7 @@ diat_morpho <- function(resultLoad, isRelAb = F){
   ##### END Shape of Chloroplasts
 
   ##### Biovolume
+
   #creates result dataframe
   biovol.val.result <- data.frame(matrix(ncol = 1, nrow = (lastcol-1)))
   colnames(biovol.val.result) <- "Total Biovolume"
@@ -151,10 +170,12 @@ diat_morpho <- function(resultLoad, isRelAb = F){
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
 
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
-    biovol <- c(unique(taxaIn[,"biovolume"]))
+    biovol <- c(unique(taxaInRA[,"biovolume"]))
+    biovol[is.na(biovol)] = 0
+    taxaInRA[is.na(taxaInRA$biovolume), "biovolume"] = 0
     biovol.val <- NULL
     #sum abundances*biovolume
-    biovol.val <- sum((taxaIn[which(biovol != 0),sampleNumber])*taxaIn[which(biovol != 0),"biovolume"])
+    biovol.val <- sum((taxaInRA[which(biovol != 0),sampleNumber])*taxaInRA[which(biovol != 0),"biovolume"])
     #labels and exports dataframe with results, in a single row to add the rest of samples as rows
     biovol.val.result[sampleNumber, ] <- biovol.val
     #update progressbar

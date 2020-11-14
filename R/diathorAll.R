@@ -1,4 +1,4 @@
-#' This function is the master function of the package. It calculates all possible outputs from the data, and places them in the Output folder
+#' Runs all the DiaThor functions in a pipeline
 #' @param species_df The data frame with your species data. Species as rows, Sites as columns. If empty, a dialog will prompt for a CSV file
 #' @param isRelAb Boolean. If set to 'TRUE' it means that your species' data is the relative abundance of each species per site. If FALSE, it means that it the data corresponds to absolute densities. Default = FALSE
 #' @param maxDistTaxa Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2
@@ -6,43 +6,39 @@
 #' @param vandamReports Boolean. If set to 'TRUE' the detailed reports for the Van Dam classifications will be reported in the Output. Default = TRUE
 #' @param singleResult Boolean. If set to 'TRUE' all results will go into a single output file. If FALSE, separate output files will be generated. Default = TRUE
 #' @param plotAll Boolean. If set to 'TRUE', plots will be generated for each Output in a PDF file. Default = TRUE
-#' @param exportFormat Integer. If = 1: A CSV (external file) will be generated with the output matrices; 2: an internal R dataframe will be generated; 3: both a CSV and an internal R dataframe are generated. Default: 3
-#' @param exportName String. Prefix for all export files. Default: "Diato_results"
-#' @param color Color code (hex). Default color for bar charts and lolipop plots. Default "#0073C2"
+#' @param exportFormat Integer. If = 1: only a CSV (external file) will be generated with the output matrices; 2: only an internal R dataframe will be generated; 3: both a CSV and an internal R dataframe are generated. Default = 3
+#' @param exportName String. Prefix for the CSV exported file. Default = "DiaThor_results"
+#' @param color Color code (hex). Default color for bar charts and lolipop plots. Default = "#0073C2"
 #' @description
-#' The input file for the package is a dataframe or an external CSV file. Species should be listed as rows, with species' names in column 1.
-#' The following columns have to be the abundance of each species (relative or absolute) in each sample (column).
-#' The first row of the file has to contain the headers with the sample names.
+#' The diaThorAll function is the master function of the package. It calculates all outputs from the data, and places them in the Output folder
+#' The input file for the package is a dataframe or an external CSV file. Species should be listed as rows, with species' names in column 1 (column name should be "species")
+#' If the input data contains a column named "acronym", the package will use that column to match species with their ecological values. This is more accurate than the
+#' heuristic search of species' names.
+#' The other columns (samples) have to contain the abundance of each species (relative or absolute) in each sample.
+#' The first row of the file has to contain the headers with the sample names. Remember that a column named "species" is mandatory, containing the species' names
 #' If a dataframe is not specified as a parameter (species_df), the package will show a dialog box to search for the CSV file
 #' A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
-#' The package downloads and installs  a wrapper for the Diat.Barcode project. Besides citing this package, the Diat.Barcode project should also be cited if the package is used, as follows:
+#' The package also downloads and installs a wrapper for the Diat.Barcode project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 #' \itemize{
-#' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès, 2018, "Diat.barcode, an open-access barcode library for diatoms", https://doi.org/10.15454/TOMBYZ, Portail Data Inra, V1
+#' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès. 2018. "Diat.barcode, an open-access barcode library for diatoms". Scientific Reports,9, 15116. https://doi.org/10.15454/TOMBYZ
 #' }
-#' Sample data is taken from:
+#' Sample data in the examples is taken from:
 #' \itemize{
-#' \item Frederic Rimet; Philippe Chaumeil; Francois Keck; Lenaïg Kermarrec; Valentin Vasselon; Maria Kahlert; Alain Franc; Agnes Bouchez. 2016. R-Syst::diatom: an open-access and curated barcode database for diatoms and freshwater monitoring. Database, 2016, 1-21.http://database.oxfordjournals.org/content/2016/baw016.full?keytype=ref&ijkey=H324uA95JzzEomz
-#' }
-#' \itemize{
-#' \item Rimet F., Chaumeil P., Keck F., Kermarrec L., Vasselon V., Kahlert M., Franc A., Bouchez A., 2015. R-Syst::diatom: a barcode database for diatoms and freshwater biomonitoring - data sources and curation procedure. INRA Report, 14 pages http://dx.doi.org/10.5281/zenodo.31137
+#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
 #' @examples
-#' # EXAMPLE 1:
-#' data("environmental_data") #ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' data("species_data")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' # EXAMPLE 2: Loads sample data where species are in absolute densities
-#' data("environmental_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' data("species_data_example2")#ESTO HAY QUE HACER ALGUN EJEMPLO EMPAQUETADO DENTRO DEL PAQUETE
-#' # Calculates everything
-#' thispackage::calculate_everything(species_df)
-#' @concepts ecology, diatom, bioindicator, biotic indices
-#' @export diathorAll
-
+#' # Example using sample data included in the package (sampleData):
+#' data("diat_sampleData")
+#' # This function can be called directly, no need to call the diat_loadData() function first
+#' allResults <- diaThorAll(diat_sampleData)
+#' @keywords ecology, diatom, bioindicator, biotic indices
+#' @encoding UTF-8
+#' @export diaThorAll
 
 
 ###### ---------- MASTER FUNCTION, CALCULATES EVERYTHING WITH ALL POSSIBLE OUTPUTS BY DEFAULT  ---------- ########
 
-diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, calculateguilds = T, vandam = T, vandamReports = T, singleResult = T, exportFormat = 3, exportName = "Diato_results", plotAll = T, color = "#0073C2"){
+diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, calculateguilds = T, vandam = T, vandamReports = T, singleResult = T, exportFormat = 3, exportName = "DiaThor_results", plotAll = T, color = "#0073C2"){
   resultmat <- diat_loadData(species_df, isRelAb, maxDistTaxa, resultsPath)
   morpho.results <- diat_morpho(resultmat, isRelAb)
 
@@ -59,14 +55,11 @@ diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   tdi.results <- diat_tdi(resultmat)
   idp.results <- diat_idp(resultmat)
   ilm.results <- diat_ilm(resultmat)
-  #cee.results <- calculate_cee(resultmat)
   des.results <- diat_des(resultmat)
   epid.results <- diat_epid(resultmat)
   idap.results <- diat_idap(resultmat)
   idch.results <- diat_idch(resultmat)
   lobo.results <- diat_lobo(resultmat)
-  #she.results <- calculate_she(resultmat)
-  #wat.results <- calculate_wat(resultmat)
   sla.results <- diat_sla(resultmat)
   spear.results <- diat_spear(resultmat)
 
@@ -172,16 +165,17 @@ diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
       .GlobalEnv$VanDam <- as.data.frame(listOfTables[[7]])
       .GlobalEnv$IPS <- as.data.frame(listOfTables[[8]])
       .GlobalEnv$TDI <- as.data.frame(listOfTables[[9]])
-      .GlobalEnv$DES <- as.data.frame(listOfTables[[10]])
-      .GlobalEnv$EPID <- as.data.frame(listOfTables[[11]])
-      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[12]])
-      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[13]])
-      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[14]])
-      .GlobalEnv$SLA <- as.data.frame(listOfTables[[15]])
-      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[16]])
+      .GlobalEnv$IDP <- as.data.frame(listOfTables[[10]])
+      .GlobalEnv$ILM <- as.data.frame(listOfTables[[11]])
+      .GlobalEnv$DES <- as.data.frame(listOfTables[[12]])
+      .GlobalEnv$EPID <- as.data.frame(listOfTables[[13]])
+      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[14]])
+      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[15]])
+      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[16]])
+      .GlobalEnv$SLA <- as.data.frame(listOfTables[[17]])
+      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[18]])
     }
   }
-
 
   #EXPORT AS BOTH CSV AND INTERNAL DATAFRAME - Default
   if (exportFormat == 3) {
@@ -200,19 +194,21 @@ diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
       .GlobalEnv$IPS <- as.data.frame(listOfTables[[8]])
       .GlobalEnv$TDI <- as.data.frame(listOfTables[[9]])
       .GlobalEnv$IDP <- as.data.frame(listOfTables[[10]])
-      .GlobalEnv$EPID <- as.data.frame(listOfTables[[11]])
-      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[12]])
-      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[13]])
-      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[14]])
-      .GlobalEnv$SLA <- as.data.frame(listOfTables[[15]])
-      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[16]])
+      .GlobalEnv$ILM <- as.data.frame(listOfTables[[11]])
+      .GlobalEnv$DES <- as.data.frame(listOfTables[[12]])
+      .GlobalEnv$EPID <- as.data.frame(listOfTables[[13]])
+      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[14]])
+      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[15]])
+      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[16]])
+      .GlobalEnv$SLA <- as.data.frame(listOfTables[[17]])
+      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[18]])
       for (i in seq_along(listOfTables)) {
         filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
         write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
       }
     }
   }
-  ########### END RESULTS TABLES ############
+  ########### END RESULTS TABLES
 
   ########### START PLOTS ############
 
@@ -360,6 +356,6 @@ diathorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     result.plots.allToPDF()
   }
 
-  ########### END PLOTS ############
+  ########### END PLOTS
 
 }
