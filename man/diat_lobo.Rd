@@ -7,6 +7,9 @@
 \usage{
 diat_lobo(resultLoad)
 }
+\arguments{
+\item{resultLoad}{The resulting list obtained from the diat_loadData() function}
+}
 \description{
 The input for all of these functions is the resulting dataframe (resultLoad) obtained from the diat_loadData() function
 A CSV or dataframe cannot be used directly with these functions, they have to be loaded first with the diat_loadData() function
@@ -25,28 +28,16 @@ Sample data in the examples is taken from:
 }
 }
 \examples{
-# First either a) load the CSV file with the diat_loadData() function
-inputdata <- diat_loadData() #this, without parameters, will prompt dialog boxes to select the CSV file and the Output folder
-# or b) use a Species x sample dataframe already in R
-inputdata <- diat_loadData(Rdataframe) #this, without parameters, will prompt a dialog box to select the Output folder
-#After waiting for the data to load correctly, you can calculate any of the diatom indices included in the package
-#Each function is a separate index. For instance:
-diat_lobo(inputdata) #calculates the LOBO index (Lobo et al. 2002; 2004)
-
-
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
 # First, the diat_Load() function has to be called to read the data
 # The data will be stored into a list (loadedData)
-# And an output folder will be selected through a dialog box
-loadedData <- diat_loadData(diat_sampleData)
-# Next, we can run any function in the package to obtain results from that dataframe. Check the console to see if enough species/acronyms were
-# automatically recognized from your data, or if you need to correct the input data
-loboResults <- diat_lobo(loadedData)
-
+# And an output folder will be selected through a dialog box if resultsPath is empty
+# In the example, a temporary directory will be used in resultsPath
+df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
+loboResults <- diat_lobo(df)
 }
-\keyword{bioindicator,}
+\keyword{bioindicator}
 \keyword{biotic}
-\keyword{diatom,}
-\keyword{ecology,}
-\keyword{indices}
+\keyword{diatom}
+\keyword{ecology}

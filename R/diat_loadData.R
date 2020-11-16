@@ -21,12 +21,9 @@
 #' \itemize{
 #' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
-#' @examples
-#' # diat_loadData() #brings up a dialog box to select the CSV file
-#' or
-#' diat_loadData(df, isRelAb = T, maxDistTaxa =5) # inputs a dataframe (df) of samples per species abundance (in Relative Abundance), and attempts a heuristic name search with up to 5 characters in difference)
-#' @keywords ecology, diatom, bioindicator, biotic indices
+#' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
+#' @importFrom stringdist stringdist ain
 #' @export diat_loadData
 
 ########-------- FUNCTION TO LOAD FILE  --------------#########
@@ -95,28 +92,36 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
       print ("No updates needed for the Diat.barcode database. Proceeding")
       #load("data/dbc_offline.RData") ##takes the internal database
       #dbc <- dbc_offline
-      dbc <- diathor:::dbc_offline
+      dbc <- diathor::dbc_offline
 
     } else {
       #updates are needed
       ########--------  Diat.Barcode download attempt. If it fails, tries to use internal database
-      print("Attempting to download diat.barcode from website")
-      dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
-      if (exists("dbc")){ #it if was able to download the new version, proceed
-        print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
-      } else { #it if was unable to download the new version, use the internal database
-        print("Latest version of Diat.barcode cannot be downloaded")
-        print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
-        #load("data/dbc_offline.RData") ##takes the internal database
-        #dbc <- dbc_offline
-        dbc <- diathor:::dbc_offline
-      }
+      ## WARNING: CRAN package does not auto-update the Diat.Barcode database
+      print("The diatom database in DiaThor is out of date")
+      print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
+      print("Using internal database, Diat.barcode v.9.0 published on 14-09-2020")
+      dbc <- diathor::dbc_offline
+
+      ###### THIS SECTION IS FOR THE GITHUB PROJECT ONLY
+      #print("Attempting to download diat.barcode from website")
+      # dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
+      # if (exists("dbc")){ #it if was able to download the new version, proceed
+      #   print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
+      # } else { #it if was unable to download the new version, use the internal database
+      #   print("Latest version of Diat.barcode cannot be downloaded")
+      #   print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
+      #   #load("data/dbc_offline.RData") ##takes the internal database
+      #   #dbc <- dbc_offline
+      #   dbc <- dbc_offline
+      # }
+      ###### END OF GITHUB VERSION
 
     }
   } else {
     print("Latest version of Diat.barcode unknown")
-    print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
-    dbc <- diathor:::dbc_offline
+    print("Using internal database, Diat.barcode v.9.0 published on 14-09-2020")
+    dbc <- diathor::dbc_offline
   }
   ### Double checks that database got loaded correctly or cancels alltogether
   if (exists("dbc")){

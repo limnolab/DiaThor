@@ -27,7 +27,11 @@ diaThorAll(
 
 \item{maxDistTaxa}{Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2}
 
+\item{resultsPath}{String. Path to the output folder. If none specified (default), a dialog box will prompt to select it}
+
 \item{calculateguilds}{Boolean. If set to 'TRUE' the percentage of abundance of each diatom guild will be calculated. Default = TRUE}
+
+\item{vandam}{Boolean. If set to 'TRUE' the Van Dam classifications will be calculated in the Output. Default = TRUE}
 
 \item{vandamReports}{Boolean. If set to 'TRUE' the detailed reports for the Van Dam classifications will be reported in the Output. Default = TRUE}
 
@@ -62,11 +66,13 @@ Sample data in the examples is taken from:
 \examples{
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
-# This function can be called directly, no need to call the diat_loadData() function first
-allResults <- diaThorAll(diat_sampleData)
+# First, the diat_Load() function has to be called to read the data
+# The data will be stored into a list (loadedData)
+# And an output folder will be selected through a dialog box if resultsPath is empty
+# In the example, a temporary directory will be used in resultsPath
+allResults <- diaThorAll(diat_sampleData, resultsPath = tempdir())
 }
-\keyword{bioindicator,}
+\keyword{bioindicator}
 \keyword{biotic}
-\keyword{diatom,}
-\keyword{ecology,}
-\keyword{indices}
+\keyword{diatom}
+\keyword{ecology}

@@ -2,7 +2,9 @@
 #' @param species_df The data frame with your species data. Species as rows, Sites as columns. If empty, a dialog will prompt for a CSV file
 #' @param isRelAb Boolean. If set to 'TRUE' it means that your species' data is the relative abundance of each species per site. If FALSE, it means that it the data corresponds to absolute densities. Default = FALSE
 #' @param maxDistTaxa Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2
+#' @param resultsPath String. Path to the output folder. If none specified (default), a dialog box will prompt to select it
 #' @param calculateguilds Boolean. If set to 'TRUE' the percentage of abundance of each diatom guild will be calculated. Default = TRUE
+#' @param vandam Boolean. If set to 'TRUE' the Van Dam classifications will be calculated in the Output. Default = TRUE
 #' @param vandamReports Boolean. If set to 'TRUE' the detailed reports for the Van Dam classifications will be reported in the Output. Default = TRUE
 #' @param singleResult Boolean. If set to 'TRUE' all results will go into a single output file. If FALSE, separate output files will be generated. Default = TRUE
 #' @param plotAll Boolean. If set to 'TRUE', plots will be generated for each Output in a PDF file. Default = TRUE
@@ -29,12 +31,18 @@
 #' @examples
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
-#' # This function can be called directly, no need to call the diat_loadData() function first
-#' allResults <- diaThorAll(diat_sampleData)
-#' @keywords ecology, diatom, bioindicator, biotic indices
+#' # First, the diat_Load() function has to be called to read the data
+#' # The data will be stored into a list (loadedData)
+#' # And an output folder will be selected through a dialog box if resultsPath is empty
+#' # In the example, a temporary directory will be used in resultsPath
+#' allResults <- diaThorAll(diat_sampleData, resultsPath = tempdir())
+#' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
+#' @importFrom grDevices dev.off pdf
+#' @importFrom utils choose.dir read.csv setTxtProgressBar tail txtProgressBar write.csv
+#' @importFrom tidyr gather
+#' @import ggplot2
 #' @export diaThorAll
-
 
 ###### ---------- MASTER FUNCTION, CALCULATES EVERYTHING WITH ALL POSSIBLE OUTPUTS BY DEFAULT  ---------- ########
 
@@ -245,9 +253,9 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     sampleCol <- rep(sampleNames, ncol(result)) #gets sample names
     result <- tidyr::gather(result) #uses tidyr to rearrange the dataframe in a single column
     result$sampleCol <- sampleCol #adds another column with the sample names
-
     colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D99", "#6EE2FF99", "#F7C53099", "#95CC5E99", "#D0DFE699", "#F79D1E99", "#748AA699")
-
+    key <- result$key
+    value <- result$value
     print(ggplot2::ggplot(result, aes(fill=key, y=value, x=sampleCol)) +
             geom_bar(position="fill", stat="identity") +
             scale_fill_manual(values=colors) +
@@ -282,6 +290,22 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     if(exists("guilds.results")){
       percentbarchart.plot(guilds.results, "Guilds")#default: piled bars
     }
+    if(exists("vandam.results")){
+      vdamSalinity <- vandam.results[,startsWith(colnames(vandam.results),"VD.Salinity")]
+      vdamNHeterotrophy <- vandam.results[,startsWith(colnames(vandam.results),"VD.N.Het")]
+      vdamOxygen <- vandam.results[,startsWith(colnames(vandam.results),"VD.Oxygen")]
+      vdamSaprobity <- vandam.results[,startsWith(colnames(vandam.results),"VD.Saprobity")]
+      vdamAero <- vandam.results[,startsWith(colnames(vandam.results),"VD.Aero")]
+      vdamTrophic <- vandam.results[,startsWith(colnames(vandam.results),"VD.Trophic")]
+      #remove the Taxa Used column
+      vdamSalinity <- vdamSalinity[1:(ncol(vdamSalinity)-1)]
+      vdamNHeterotrophy <- vdamNHeterotrophy[1:(ncol(vdamNHeterotrophy)-1)]
+      vdamOxygen <- vdamOxygen[1:(ncol(vdamOxygen)-1)]
+      vdamSaprobity <- vdamSaprobity[1:(ncol(vdamSaprobity)-1)]
+      vdamAero <- vdamAero[1:(ncol(vdamAero)-1)]
+      vdamTrophic <- vdamTrophic[1:(ncol(vdamTrophic)-1)]
+    }
+
     if(exists("vdamSalinity")){
       percentbarchart.plot(vdamSalinity, "Salinity")
     }

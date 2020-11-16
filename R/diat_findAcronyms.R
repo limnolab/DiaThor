@@ -1,6 +1,6 @@
 #' Search species' names or acronyms for diatoms
 #' @param species_df The data frame with your species data. Species as rows, Samples as columns. If empty, a dialog box will prompt to import a CSV file
-#' @param isRelAb Boolean. If set to 'TRUE' it means that your species' data is the relative abundance of each species per site. If FALSE, it means that it the data corresponds to absolute densities. Default = FALSE
+#' @param resultsPath String. Path to the output folder. If none specified (default), a dialog box will prompt to select it
 #' @param maxDistTaxa Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2
 #' @description
 #' This function conducts both an exact and an heuristic search of the species' names and tries to convert it to its acronym in the internal database. If acronyms are already present in the input data, it attempts to update them to the latest taxonomy.
@@ -17,12 +17,9 @@
 #' \itemize{
 #' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
-#' @examples
-#' # diat_loadData() #brings up a dialog box to select the CSV file
-#' or
-#' diat_loadData(df, isRelAb = T, maxDistTaxa =5) # inputs a dataframe (df) of samples per species abundance (in Relative Abundance), and attempts a heuristic name search with up to 5 characters in difference)
-#' @keywords ecology, diatom, bioindicator, biotic indices
+#' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
+#' @importFrom stringdist amatch
 #'
 #' @export diat_findAcronyms
 
