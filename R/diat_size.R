@@ -11,6 +11,7 @@
 #' \item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
 #' }
 #' @examples
+#' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_Load() function has to be called to read the data
@@ -19,6 +20,7 @@
 #' # In the example, a temporary directory will be used in resultsPath
 #' df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 #' sizeResults <- diat_size(df)
+#' }
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
 #' @export diat_size

@@ -13,7 +13,7 @@
 #' The first row of the file has to contain the headers with the sample names. Remember that a column named "species" is mandatory, containing the species' names
 #' If a dataframe is not specified as a parameter (species_df), the package will show a dialog box to search for the CSV file
 #' A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
-#' The package also downloads and installs a wrapper for the Diat.Barcode project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
+#' The package also downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 #' \itemize{
 #' \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
 #' }
@@ -77,9 +77,9 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   species_df[is.na(species_df)] <- 0
 
   ########## LINK WITH DIAT.BARCODE DATABASE
-  #internal Diat.Barcode number
+  #internal 'Diat.Barcode' number
   intversion <- "9"
-  #get version number of latest Diat.Barcode
+  #get version number of latest 'Diat.Barcode'
   dic <- read.csv("http://www.francoiskeck.fr/work/diatbarcode/dic_version.csv", header = TRUE, stringsAsFactors = FALSE)
   if (exists("dic")){
     #is able to check the version
@@ -89,7 +89,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
     #compare both. If updates are needed, attempt them
     if (version == intversion){
       #updates are not needed
-      print ("No updates needed for the Diat.barcode database. Proceeding")
+      print ("No updates needed for the 'Diat.barcode' database. Proceeding")
       #load("data/dbc_offline.RData") ##takes the internal database
       #dbc <- dbc_offline
       dbc <- diathor::dbc_offline
@@ -100,7 +100,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
       ## WARNING: CRAN package does not auto-update the Diat.Barcode database
       print("The diatom database in DiaThor is out of date")
       print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
-      print("Using internal database, Diat.barcode v.9.0 published on 14-09-2020")
+      print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
       dbc <- diathor::dbc_offline
 
       ###### THIS SECTION IS FOR THE GITHUB PROJECT ONLY
@@ -119,8 +119,8 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
 
     }
   } else {
-    print("Latest version of Diat.barcode unknown")
-    print("Using internal database, Diat.barcode v.9.0 published on 14-09-2020")
+    print("Latest version of 'Diat.barcode' unknown")
+    print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
     dbc <- diathor::dbc_offline
   }
   ### Double checks that database got loaded correctly or cancels alltogether
@@ -154,7 +154,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   #PROGRESS BAR
   pb <- txtProgressBar(min = 1, max = nrow(taxaInSp), style = 3)
   for (i in 1:nrow(taxaInSp)){
-    searchvectr <- ecodata[stringdist::ain(ecodata[,"species"],row.names(species_df)[i], maxDist=maxDistTaxa, matchNA = F),] #seaches species by species
+    searchvectr <- ecodata[stringdist::ain(ecodata[,"species"],row.names(species_df)[i], maxDist=maxDistTaxa, matchNA = FALSE),] #seaches species by species
     if (nrow(searchvectr)==1){ #if it finds only one species, add that
       taxaInSp[i,(lastcolspecies_df + 1):(ncol(taxaInSp)-1)] <- searchvectr
       taxaInSp[i,"recognizedSp"] <- searchvectr$species

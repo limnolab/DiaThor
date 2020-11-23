@@ -12,6 +12,7 @@
 #' \item Van Dam, H., Mertens, A., & Sinkeldam, J. (1994). A coded checklist and ecological indicator values of freshwater diatoms from the Netherlands. Netherland Journal of Aquatic Ecology, 28(1), 117-133.
 #' }
 #' @examples
+#' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_Load() function has to be called to read the data
@@ -20,6 +21,7 @@
 #' # In the example, a temporary directory will be used in resultsPath
 #' df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 #' vandamResults <- diat_vandam(df)
+#' }
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
 #' @export diat_vandam
@@ -37,7 +39,7 @@
 #vdamtrop = trophic
 #vdamaero = aerophilie
 
-diat_vandam <- function(resultLoad, vandamReports=T){
+diat_vandam <- function(resultLoad, vandamReports=TRUE){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
@@ -77,20 +79,20 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
   resultsPath <- resultLoad[[4]]
   # CHECKS IF RESULTSPATH EXISTS, OR ASKS FOR IT, FOR THE DETAILED REPORTS
-  if (vandamReports==T & is.na(resultsPath)==T){
+  if (vandamReports==TRUE & is.na(resultsPath)==TRUE){
     print("Select Results folder for the detailed VanDam reports")
     resultsPath <- choose.dir(default = "", caption = "Select folder for your Results")
   }
 
   #EXPORT REPORTS FOR EACH SAMPLE OF TAXA USED
-  if (vandamReports==T & is.na(resultsPath)==F){
+  if (vandamReports==TRUE & is.na(resultsPath)==FALSE){
     print("Exporting detailed reports for VanDam ecological preferences")
     print(resultsPath)
     vandamtaxafile = paste("VanDam Taxa used.txt", sep="")
     write("TAXA USED FOR EACH ECOLOGICAL VARIABLE USING VANDAM's CLASSIFICATION", paste(resultsPath, "\\", vandamtaxafile, sep=""))
-    write("These taxa were included because: ",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)
-    write("a) they had a reliable classification in VanDam's classification system",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)
-    write("b) they had a relative abundance in the sample > 0",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)
+    write("These taxa were included because: ",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)
+    write("a) they had a reliable classification in VanDam's classification system",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)
+    write("b) they had a relative abundance in the sample > 0",paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)
   }
 
   ##### VANDAM SALINITY
@@ -119,8 +121,8 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
     vdams_values <- c(vdams_cat1, vdams_cat2, vdams_cat3, vdams_cat4, vdams_indet, Vdamstaxaused)
     vdamSalinity[sampleNumber, ] <- vdams_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("SALINITY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamstaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("SALINITY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamstaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
 
   ##### END VANDAM SALINITY
@@ -150,8 +152,8 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
     vdamnh_values <- c(vdamnh_cat1, vdamnh_cat2, vdamnh_cat3, vdamnh_cat4, vdamnh_indet, Vdamnhtaxaused)
     vdamNHeterotrophy[sampleNumber, ] <- vdamnh_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("N-HETEROTROPHY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamnhtaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("N-HETEROTROPHY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamnhtaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
   ##### END VANDAM N-HETEROTROPHIE
 
@@ -181,8 +183,8 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
     vdamo2_values <- c(vdamo2_cat1, vdamo2_cat2, vdamo2_cat3, vdamo2_cat4, vdamo2_cat5, vdamo2_indet, Vdamo2taxaused)
     vdamOxygen[sampleNumber, ] <- vdamo2_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("OXYGEN REQUIREMENTS- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamo2taxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("OXYGEN REQUIREMENTS- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamo2taxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
   ##### END VANDAM OXYGEN REQUIREMENTS
 
@@ -211,8 +213,8 @@ diat_vandam <- function(resultLoad, vandamReports=T){
     #labels and exports dataframe with results, in a single row to add the rest of samples as rows
     vdamsap_values <- c(vdamsap_cat1, vdamsap_cat2, vdamsap_cat3, vdamsap_cat4, vdamsap_cat5, vdamsap_indet, vdamsaptaxaused)
     vdamSaprobity[sampleNumber, ] <- vdamsap_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("SAPROBITY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamsaptaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("SAPROBITY- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamsaptaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
   ##### END VANDAM SAPROBITY
 
@@ -242,8 +244,8 @@ diat_vandam <- function(resultLoad, vandamReports=T){
 
     vdamaero_values <- c(vdamaero_cat1, vdamaero_cat2, vdamaero_cat3, vdamaero_cat4, vdamaero_cat5, vdamaero_indet, vdamaerotaxaused)
     vdamAero[sampleNumber, ] <- vdamaero_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("MOISTURE- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamaerotaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("MOISTURE- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamaerotaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
   ##### END VANDAM MOISTURE (AERO) STATE
 
@@ -272,15 +274,15 @@ diat_vandam <- function(resultLoad, vandamReports=T){
     #labels and exports dataframe with results, in a single row to add the rest of samples as rows
     vdamtrop_values <- c(vdamtrop_cat1, vdamtrop_cat2, vdamtrop_cat3, vdamtrop_cat4, vdamtrop_cat5, vdamtrop_indet, vdamtroptaxaused)
     vdamTrophic[sampleNumber, ] <- vdamtrop_values
-    if (vandamReports==T & exists("resultsPath")) {write(paste("TROPHIC STATE- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
-    if (vandamReports==T & exists("resultsPath")) {write(Vdamtroptaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=T)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(paste("TROPHIC STATE- Sample:", colnames(taxaInRA[sampleNumber])),paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
+    if (vandamReports==TRUE & exists("resultsPath")) {write(Vdamtroptaxaused_taxa,paste(resultsPath, "\\", vandamtaxafile, sep=""), append=TRUE)}
   }
   ##### END VANDAM TROPHIC STATE
 
   ### VANDAM RESULTS SUMMARY TABLES
   vandam.results <- data.frame(c(vdamSalinity, vdamNHeterotrophy, vdamOxygen, vdamSaprobity, vdamAero, vdamTrophic))
 
-  if (vandamReports==T & exists("resultsPath")) {print(paste("VanDam detailed reports - File exported as ", paste(resultsPath, "\\", vandamtaxafile, sep="")))}
+  if (vandamReports==TRUE & exists("resultsPath")) {print(paste("VanDam detailed reports - File exported as ", paste(resultsPath, "\\", vandamtaxafile, sep="")))}
   ### END VANDAM RESULTS
 
   return(vandam.results)

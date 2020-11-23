@@ -2,7 +2,7 @@
 #'
 #' @description
 #' The package calculates multiple biotic indices using diatoms from environmental samples. Diatom species are recognized by their acronym or by their species' name using a heuristic search, and their ecological data is retrieved from multiple sources.
-#' Morphological information about the species is retrieved from the Diat.Barcode project:
+#' Morphological information about the species is retrieved from the 'Diat.Barcode' project:
 #' \itemize{
 #' \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
 #' }
@@ -33,7 +33,7 @@
 #' \item IDP: Gómez, N., & Licursi, M. (2001). The Pampean Diatom Index (IDP) for assessment of rivers and streams in Argentina. Aquatic Ecology, 35(2), 173-181.
 #' }
 #' \itemize{
-#' \item DES: Descy, J. P. 1979. A new approach to water qualityestimation  using  diatom.  Beih.  Nov  Hedw. 64:305-323
+#' \item DES: Descy, J. P. 1979. A new approach to water quality estimation  using  diatom.  Beih.  Nov  Hedw. 64:305-323
 #' }
 #' \itemize{
 #' \item EPID: Dell'Uomo, A. (1996). Assessment of water quality of an Apennine river as a pilot study for diatom-based monitoring of Italian watercourses. Use of algae for monitoring rivers, 65-72.

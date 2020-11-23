@@ -20,7 +20,7 @@
 #' The first row of the file has to contain the headers with the sample names. Remember that a column named "species" is mandatory, containing the species' names
 #' If a dataframe is not specified as a parameter (species_df), the package will show a dialog box to search for the CSV file
 #' A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
-#' The package also downloads and installs a wrapper for the Diat.Barcode project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
+#' The package also downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 #' \itemize{
 #' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès. 2018. "Diat.barcode, an open-access barcode library for diatoms". Scientific Reports,9, 15116. https://doi.org/10.15454/TOMBYZ
 #' }
@@ -29,6 +29,7 @@
 #' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
 #' @examples
+#' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_Load() function has to be called to read the data
@@ -36,17 +37,18 @@
 #' # And an output folder will be selected through a dialog box if resultsPath is empty
 #' # In the example, a temporary directory will be used in resultsPath
 #' allResults <- diaThorAll(diat_sampleData, resultsPath = tempdir())
+#' }
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
 #' @importFrom grDevices dev.off pdf
-#' @importFrom utils choose.dir read.csv setTxtProgressBar tail txtProgressBar write.csv
 #' @importFrom tidyr gather
 #' @import ggplot2
+#' @import utils
 #' @export diaThorAll
 
 ###### ---------- MASTER FUNCTION, CALCULATES EVERYTHING WITH ALL POSSIBLE OUTPUTS BY DEFAULT  ---------- ########
 
-diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, calculateguilds = T, vandam = T, vandamReports = T, singleResult = T, exportFormat = 3, exportName = "DiaThor_results", plotAll = T, color = "#0073C2"){
+diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, calculateguilds = TRUE, vandam = TRUE, vandamReports = TRUE, singleResult = TRUE, exportFormat = 3, exportName = "DiaThor_results", plotAll = TRUE, color = "#0073C2"){
   resultmat <- diat_loadData(species_df, isRelAb, maxDistTaxa, resultsPath)
   morpho.results <- diat_morpho(resultmat, isRelAb)
 
@@ -76,7 +78,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   resultsPath <- resultmat[[4]]
 
   ########### RESULTS TABLES ############
-  if (singleResult == T){ #by default exports a single spreadsheet with all the results
+  if (singleResult == TRUE){ #by default exports a single spreadsheet with all the results
     singleTable <- NULL
     singleTable <- data.frame(c(if(exists("diversity.results")){diversity.results},
                      if(exists("numcloroplastos.result")){as.data.frame(numcloroplastos.result)},
@@ -145,77 +147,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
 
   }
 
-  #EXPORT AS CSV
-  if (exportFormat == 1) {
-    if (singleResult == T) {
-      filename = paste(exportName, " - Results", ".csv")
-      write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
 
-    } else {
-      for (i in seq_along(listOfTables)) {
-        filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
-        write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
-      }
-    }
-  }
-
-  #EXPORT AS INTERNAL DATAFRAME
-  if (exportFormat == 2) {
-    if (singleResult == T) {
-      .GlobalEnv$DiaThor_Results <- singleTable
-    } else {
-      .GlobalEnv$Diversity <- as.data.frame(listOfTables[[1]])
-      .GlobalEnv$ChloroplastNumber <- as.data.frame(listOfTables[[2]])
-      .GlobalEnv$ChloroplastShape <- as.data.frame(listOfTables[[3]])
-      .GlobalEnv$Biovolume <- as.data.frame(listOfTables[[4]])
-      .GlobalEnv$SizeClasses <- as.data.frame(listOfTables[[5]])
-      .GlobalEnv$Guilds <- as.data.frame(listOfTables[[6]])
-      .GlobalEnv$VanDam <- as.data.frame(listOfTables[[7]])
-      .GlobalEnv$IPS <- as.data.frame(listOfTables[[8]])
-      .GlobalEnv$TDI <- as.data.frame(listOfTables[[9]])
-      .GlobalEnv$IDP <- as.data.frame(listOfTables[[10]])
-      .GlobalEnv$ILM <- as.data.frame(listOfTables[[11]])
-      .GlobalEnv$DES <- as.data.frame(listOfTables[[12]])
-      .GlobalEnv$EPID <- as.data.frame(listOfTables[[13]])
-      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[14]])
-      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[15]])
-      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[16]])
-      .GlobalEnv$SLA <- as.data.frame(listOfTables[[17]])
-      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[18]])
-    }
-  }
-
-  #EXPORT AS BOTH CSV AND INTERNAL DATAFRAME - Default
-  if (exportFormat == 3) {
-    if (singleResult == T) {
-      filename = paste(exportName, " - Results", ".csv")
-      write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
-      .GlobalEnv$DiaThor_Results <- singleTable
-    } else {
-      .GlobalEnv$Diversity <- as.data.frame(listOfTables[[1]])
-      .GlobalEnv$ChloroplastNumber <- as.data.frame(listOfTables[[2]])
-      .GlobalEnv$ChloroplastShape <- as.data.frame(listOfTables[[3]])
-      .GlobalEnv$Biovolume <- as.data.frame(listOfTables[[4]])
-      .GlobalEnv$SizeClasses <- as.data.frame(listOfTables[[5]])
-      .GlobalEnv$Guilds <- as.data.frame(listOfTables[[6]])
-      .GlobalEnv$VanDam <- as.data.frame(listOfTables[[7]])
-      .GlobalEnv$IPS <- as.data.frame(listOfTables[[8]])
-      .GlobalEnv$TDI <- as.data.frame(listOfTables[[9]])
-      .GlobalEnv$IDP <- as.data.frame(listOfTables[[10]])
-      .GlobalEnv$ILM <- as.data.frame(listOfTables[[11]])
-      .GlobalEnv$DES <- as.data.frame(listOfTables[[12]])
-      .GlobalEnv$EPID <- as.data.frame(listOfTables[[13]])
-      .GlobalEnv$IDAP <- as.data.frame(listOfTables[[14]])
-      .GlobalEnv$IDCH <- as.data.frame(listOfTables[[15]])
-      .GlobalEnv$LOBO <- as.data.frame(listOfTables[[16]])
-      .GlobalEnv$SLA <- as.data.frame(listOfTables[[17]])
-      .GlobalEnv$SPEAR <- as.data.frame(listOfTables[[18]])
-      for (i in seq_along(listOfTables)) {
-        filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
-        write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
-      }
-    }
-  }
   ########### END RESULTS TABLES
 
   ########### START PLOTS ############
@@ -247,7 +179,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   percentbarchart.plot <- function(result, title){
     x <- colnames(result) #checks if taxa used colum exists and removes it
     x <- substr(x, nchar(x)-8, nchar(x)) == 'Taxa used' #checks if taxa used colum exists and removes it
-    if (tail(x, n=1)==T) {
+    if (tail(x, n=1)==TRUE) {
       result <- result[,-ncol(result)] #and removes it
     }
     sampleCol <- rep(sampleNames, ncol(result)) #gets sample names
@@ -381,5 +313,124 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   }
 
   ########### END PLOTS
+
+  #EXPORT AS CSV
+  if (exportFormat == 1) {
+    print(exportFormat)
+    if (singleResult == TRUE) {
+      filename = paste(exportName, " - Results", ".csv")
+      write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
+
+    } else {
+      for (i in seq_along(listOfTables)) {
+        filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
+        write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
+      }
+    }
+  }
+
+  #EXPORT AS INTERNAL DATAFRAME
+  if (exportFormat == 2) {
+
+    if (singleResult == TRUE) {
+      return(singleTable)
+    } else {
+      resultList <- list(as.data.frame(listOfTables[[1]]),
+                         as.data.frame(listOfTables[[2]]),
+                         as.data.frame(listOfTables[[3]]),
+                         as.data.frame(listOfTables[[4]]),
+                         as.data.frame(listOfTables[[5]]),
+                         as.data.frame(listOfTables[[6]]),
+                         as.data.frame(listOfTables[[7]]),
+                         as.data.frame(listOfTables[[8]]),
+                         as.data.frame(listOfTables[[9]]),
+                         as.data.frame(listOfTables[[10]]),
+                         as.data.frame(listOfTables[[11]]),
+                         as.data.frame(listOfTables[[12]]),
+                         as.data.frame(listOfTables[[13]]),
+                         as.data.frame(listOfTables[[14]]),
+                         as.data.frame(listOfTables[[15]]),
+                         as.data.frame(listOfTables[[16]]),
+                         as.data.frame(listOfTables[[17]]),
+                         as.data.frame(listOfTables[[18]])
+                          )
+      names(resultList) <- c("Diversity",
+                             "ChloroplastNumber",
+                             "ChloroplastShape",
+                             "Biovolume",
+                             "SizeClasses",
+                             "Guilds",
+                             "VanDam",
+                             "IPS",
+                             "TDI",
+                             "IDP",
+                             "ILM",
+                             "DES",
+                             "EPID",
+                             "EPID",
+                             "IDAP",
+                             "IDCH",
+                             "LOBO",
+                             "SPEAR"
+                             )
+      return(resultList)
+    }
+  }
+
+  #EXPORT AS BOTH CSV AND INTERNAL DATAFRAME - Default
+  if (exportFormat == 3) {
+    print(exportFormat)
+    if (singleResult == TRUE) {
+      filename = paste(exportName, " - Results", ".csv")
+      write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
+      return(singleTable)
+    } else {
+      for (i in seq_along(listOfTables)) {
+        filename = paste(exportName, " - ",names(listOfTables)[i], ".csv")
+        write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
+      }
+
+      resultList <- list(as.data.frame(listOfTables[[1]]),
+           as.data.frame(listOfTables[[2]]),
+           as.data.frame(listOfTables[[3]]),
+           as.data.frame(listOfTables[[4]]),
+           as.data.frame(listOfTables[[5]]),
+           as.data.frame(listOfTables[[6]]),
+           as.data.frame(listOfTables[[7]]),
+           as.data.frame(listOfTables[[8]]),
+           as.data.frame(listOfTables[[9]]),
+           as.data.frame(listOfTables[[10]]),
+           as.data.frame(listOfTables[[11]]),
+           as.data.frame(listOfTables[[12]]),
+           as.data.frame(listOfTables[[13]]),
+           as.data.frame(listOfTables[[14]]),
+           as.data.frame(listOfTables[[15]]),
+           as.data.frame(listOfTables[[16]]),
+           as.data.frame(listOfTables[[17]]),
+           as.data.frame(listOfTables[[18]])
+      )
+      names(resultList) <- c("Diversity",
+                             "ChloroplastNumber",
+                             "ChloroplastShape",
+                             "Biovolume",
+                             "SizeClasses",
+                             "Guilds",
+                             "VanDam",
+                             "IPS",
+                             "TDI",
+                             "IDP",
+                             "ILM",
+                             "DES",
+                             "EPID",
+                             "EPID",
+                             "IDAP",
+                             "IDCH",
+                             "LOBO",
+                             "SPEAR"
+      )
+      return(resultList)
+    }
+  }
+
 
 }

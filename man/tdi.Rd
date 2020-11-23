@@ -8,6 +8,9 @@
 \format{
 A data frame with the ecological values for 3445 species
 }
+\source{
+\url{https://doi.org/10.1007/BF00003802}
+}
 \usage{
 data(tdi)
 }

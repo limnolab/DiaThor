@@ -82,7 +82,7 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
     pb <- txtProgressBar(min = 1, max = ntot, style = 3)
     for(i in 1:ntot) {
       if (is.na(species_df$acronym[i])){
-        species_df$acronym[i] <- acronymDB$acronym[stringdist::amatch(trimws(rownames(species_df[i,])), trimws(acronymDB$species), maxDist=maxDistTaxa, matchNA = F)]
+        species_df$acronym[i] <- acronymDB$acronym[stringdist::amatch(trimws(rownames(species_df[i,])), trimws(acronymDB$species), maxDist=maxDistTaxa, matchNA = FALSE)]
       }
       setTxtProgressBar(pb, i)
     }
@@ -103,7 +103,7 @@ diat_findAcronyms <- function(species_df, maxDistTaxa=2, resultsPath){
   species_df$acronym <- as.character(species_df$acronym)
 
   #keepupdating <- T
-  #while (keepupdating == T){
+  #while (keepupdating == TRUE){
   updatedacronyms <- 0
   for(i in 1:nrow(species_df)) {
     if (!is.na(species_df$acronym[i])){ #there is an acronym for this species, try updating

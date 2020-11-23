@@ -10,13 +10,13 @@ diaThorAll(
   isRelAb = FALSE,
   maxDistTaxa = 2,
   resultsPath,
-  calculateguilds = T,
-  vandam = T,
-  vandamReports = T,
-  singleResult = T,
+  calculateguilds = TRUE,
+  vandam = TRUE,
+  vandamReports = TRUE,
+  singleResult = TRUE,
   exportFormat = 3,
   exportName = "DiaThor_results",
-  plotAll = T,
+  plotAll = TRUE,
   color = "#0073C2"
 )
 }
@@ -54,7 +54,7 @@ The other columns (samples) have to contain the abundance of each species (relat
 The first row of the file has to contain the headers with the sample names. Remember that a column named "species" is mandatory, containing the species' names
 If a dataframe is not specified as a parameter (species_df), the package will show a dialog box to search for the CSV file
 A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
-The package also downloads and installs a wrapper for the Diat.Barcode project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
+The package also downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 \itemize{
 \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès. 2018. "Diat.barcode, an open-access barcode library for diatoms". Scientific Reports,9, 15116. https://doi.org/10.15454/TOMBYZ
 }
@@ -64,6 +64,7 @@ Sample data in the examples is taken from:
 }
 }
 \examples{
+\donttest{
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
 # First, the diat_Load() function has to be called to read the data
@@ -71,6 +72,7 @@ data("diat_sampleData")
 # And an output folder will be selected through a dialog box if resultsPath is empty
 # In the example, a temporary directory will be used in resultsPath
 allResults <- diaThorAll(diat_sampleData, resultsPath = tempdir())
+}
 }
 \keyword{bioindicator}
 \keyword{biotic}

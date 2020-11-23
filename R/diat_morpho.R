@@ -3,7 +3,7 @@
 #' @param isRelAb Boolean. If set to 'TRUE' it means that your species' data is the relative abundance of each species per site. If FALSE, it means that it the data corresponds to absolute densities. Default = FALSE
 #' @description
 #' The input for these functions is the resulting dataframe obtained from the diat_loadData() function to calculate morphological parameters
-#' The morphological data (size classes, chlorophlasts) is obtained from the Diat.Barcode project. Besides citing DiaThor, the Diat.Barcode project should also be cited if the package is used, as follows:
+#' The morphological data (size classes, chlorophlasts) is obtained from the 'Diat.Barcode' project. Besides citing DiaThor, the Diat.Barcode project should also be cited if the package is used, as follows:
 #' \itemize{
 #' \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
 #' }
@@ -12,6 +12,7 @@
 #' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
 #' @examples
+#' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_Load() function has to be called to read the data
@@ -20,6 +21,7 @@
 #' # In the example, a temporary directory will be used in resultsPath
 #' df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 #' morphoResults <- diat_morpho(df)
+#' }
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
 #' @export diat_morpho
@@ -30,7 +32,7 @@
 ### INPUT: result created in loadData(). If its in RA, biovolume cannot be calculated
 ### OUTPUTS: #number of chloroplasts #shape of chloroplasts #biovolume
 
-diat_morpho <- function(resultLoad, isRelAb = F){
+diat_morpho <- function(resultLoad, isRelAb = FALSE){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {

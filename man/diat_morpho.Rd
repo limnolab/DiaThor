@@ -5,7 +5,7 @@
 \alias{diat_morpho}
 \title{Calculate morphological parameters for diatoms}
 \usage{
-diat_morpho(resultLoad, isRelAb = F)
+diat_morpho(resultLoad, isRelAb = FALSE)
 }
 \arguments{
 \item{resultLoad}{The resulting list obtained from the diat_loadData() function}
@@ -14,7 +14,7 @@ diat_morpho(resultLoad, isRelAb = F)
 }
 \description{
 The input for these functions is the resulting dataframe obtained from the diat_loadData() function to calculate morphological parameters
-The morphological data (size classes, chlorophlasts) is obtained from the Diat.Barcode project. Besides citing DiaThor, the Diat.Barcode project should also be cited if the package is used, as follows:
+The morphological data (size classes, chlorophlasts) is obtained from the 'Diat.Barcode' project. Besides citing DiaThor, the Diat.Barcode project should also be cited if the package is used, as follows:
 \itemize{
 \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
 }
@@ -24,6 +24,7 @@ Sample data in the examples is taken from:
 }
 }
 \examples{
+\donttest{
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
 # First, the diat_Load() function has to be called to read the data
@@ -32,6 +33,7 @@ data("diat_sampleData")
 # In the example, a temporary directory will be used in resultsPath
 df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 morphoResults <- diat_morpho(df)
+}
 }
 \keyword{bioindicator}
 \keyword{biotic}

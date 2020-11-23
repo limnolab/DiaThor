@@ -8,6 +8,9 @@
 \format{
 A data frame with the ecological values for 550 species
 }
+\source{
+\url{https://www.bafu.admin.ch/bafu/fr/home/themes/eaux/publications/publications-eaux/methodes-analyse-appreciation-cours-eau-diatomees.html}
+}
 \usage{
 data(idch)
 }
@@ -15,6 +18,6 @@ data(idch)
 Index values for diatom species included in the IC-CH index
 }
 \references{
-Hürlimann J., Niederhauser P. 2007: Méthodes d’analyse et d’appréciation des cours d’eau. Diatomées Niveau R (région). État de l’environnement n° 0740. Office fédéral de l’environnement, Berne. 132 p
+Hürlimann J., Niederhauser P. (2007). Méthodes d’analyse et d’appréciation des cours d’eau. Diatomées Niveau R (région). État de l’environnement n° 0740. Office fédéral de l’environnement, Berne. 132 p
 }
 \keyword{datasets}

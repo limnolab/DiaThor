@@ -26,7 +26,7 @@ The other columns (samples) have to contain the abundance of each species (relat
 The first row of the file has to contain the headers with the sample names. Remember that a column named "species" is mandatory, containing the species' names
 If a dataframe is not specified as a parameter (species_df), the package will show a dialog box to search for the CSV file
 A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
-The package also downloads and installs a wrapper for the Diat.Barcode project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
+The package also downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 \itemize{
 \item Rimet F., Gusev E., Kahlert M., Kelly M., Kulikovskiy M., Maltsev Y., Mann D., Pfannkuchen M., Trobajo R., Vasselon V., Zimmermann J., Bouchez A., 2019. Diat.barcode, an open-access curated barcode library for diatoms. Scientific Reports. https://www.nature.com/articles/s41598-019-51500-6
 }
