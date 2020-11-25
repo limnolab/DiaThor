@@ -29,7 +29,7 @@
 #' @usage data(dbc_offline)
 #' @encoding UTF-8
 #' @source \url{https://doi.org/10.1051/kmae/2012018}
-#' @references Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
+#' @references Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
 "dbc_offline"
 
 #' DES

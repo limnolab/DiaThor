@@ -13,11 +13,11 @@ Morphological information about the species is retrieved from the 'Diat.Barcode'
 }
 Size class classification is obtained from:
 \itemize{
-\item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
+\item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
 }
 Guild classification is obtained from:
 \itemize{
-\item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI: 10.1051/kmae/2012018
+\item Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
 }
 Van Dam classification is obtained form:
 \itemize{

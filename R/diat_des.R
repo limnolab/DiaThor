@@ -13,7 +13,7 @@
 #' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
 #' }
 #' @examples
-#' \donttest{
+#' #\donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_Load() function has to be called to read the data
@@ -22,7 +22,7 @@
 #' # In the example, a temporary directory will be used in resultsPath
 #' df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 #' desResults <- diat_des(df)
-#' }
+#' #}
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
 #' @export diat_des

@@ -24,7 +24,7 @@ Sample data in the examples is taken from:
 }
 }
 \examples{
-\donttest{
+#\donttest{
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
 # First, the diat_Load() function has to be called to read the data
@@ -33,7 +33,7 @@ data("diat_sampleData")
 # In the example, a temporary directory will be used in resultsPath
 df <- diat_loadData(diat_sampleData, resultsPath = tempdir())
 desResults <- diat_des(df)
-}
+#}
 }
 \keyword{bioindicator}
 \keyword{biotic}

@@ -23,7 +23,7 @@ Description:
     the LOBO index by Lobo, Callegaro, & Bender (2002, ISBN:9788585869908), 
     the SLA by Sládeček (1986, <doi:10.1002/aheh.19860140519>), 
     the TDI index by Kelly, & Whitton (1995, <doi:10.1007/BF00003802>), 
-    and the SPEAR(herbicide) index by Wood, Mitrovic, Lim, Warne, Dunlop, & Kefford (2019, <doi: 10.1016/j.ecolind.2018.12.035>).
+    and the SPEAR(herbicide) index by Wood, Mitrovic, Lim, Warne, Dunlop, & Kefford (2019, <doi:10.1016/j.ecolind.2018.12.035>).
 License: GNU General Public License
 BugReports: https://github.com/jcochero/DiaThor/issues
 Encoding: UTF-8
