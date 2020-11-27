@@ -32,9 +32,6 @@
 #' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
-#' # First, the diat_Load() function has to be called to read the data
-#' # The data will be stored into a list (loadedData)
-#' # And an output folder will be selected through a dialog box if resultsPath is empty
 #' # In the example, a temporary directory will be used in resultsPath
 #' allResults <- diaThorAll(diat_sampleData, resultsPath = tempdir())
 #' }

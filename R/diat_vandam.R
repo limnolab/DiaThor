@@ -15,7 +15,7 @@
 #' \donttest{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
-#' # First, the diat_Load() function has to be called to read the data
+#' # First, the diat_loadData() function has to be called to read the data
 #' # The data will be stored into a list (loadedData)
 #' # And an output folder will be selected through a dialog box if resultsPath is empty
 #' # In the example, a temporary directory will be used in resultsPath
@@ -51,7 +51,7 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
   }
 
   taxaInEco <- resultLoad[[5]]
-  #checks thata taxaInEco (taxaInEco from diat_Load) has at least recognized some species
+  #checks thata taxaInEco (taxaInEco from diat_loadData) has at least recognized some species
   if (nrow(taxaInEco)==0){
     print("No species were recognized for VanDam calculations")
     print("VanDam data will not be available")
