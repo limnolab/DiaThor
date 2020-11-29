@@ -115,7 +115,6 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
         print("Latest version of Diat.barcode cannot be downloaded")
         print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
         #load("data/dbc_offline.RData") ##takes the internal database
-        #dbc <- dbc_offline
         dbc <- dbc_offline
       }
       ###### END OF GITHUB VERSION
