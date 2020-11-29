@@ -99,22 +99,25 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
       ########--------  Diat.Barcode download attempt. If it fails, tries to use internal database
       ## WARNING: CRAN package does not auto-update the Diat.Barcode database
       print("The diatom database in DiaThor is out of date")
-      print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
-      print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
-      dbc <- diathor::dbc_offline
+
+      ###### THIS SECTION IS FOR THE CRAN PROJECT ONLY
+      # print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
+      # print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
+      # dbc <- diathor::dbc_offline
+      ###### END OF CRAN VERSION
 
       ###### THIS SECTION IS FOR THE GITHUB PROJECT ONLY
-      #print("Attempting to download diat.barcode from website")
-      # dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
-      # if (exists("dbc")){ #it if was able to download the new version, proceed
-      #   print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
-      # } else { #it if was unable to download the new version, use the internal database
-      #   print("Latest version of Diat.barcode cannot be downloaded")
-      #   print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
-      #   #load("data/dbc_offline.RData") ##takes the internal database
-      #   #dbc <- dbc_offline
-      #   dbc <- dbc_offline
-      # }
+      print("Attempting to download diat.barcode from website")
+      dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
+      if (exists("dbc")){ #it if was able to download the new version, proceed
+        print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
+      } else { #it if was unable to download the new version, use the internal database
+        print("Latest version of Diat.barcode cannot be downloaded")
+        print("Using internal database, Diat.barcode v.8.1 published on 10-06-2020. It might need to be updated")
+        #load("data/dbc_offline.RData") ##takes the internal database
+        #dbc <- dbc_offline
+        dbc <- dbc_offline
+      }
       ###### END OF GITHUB VERSION
 
     }
