@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 
 # diaThor
 
+*María Mercedes Nicolosi Gelis, Belén Sathicq, Joaquín Cochero*
 <!-- badges: start -->
 <!-- badges: end -->
 

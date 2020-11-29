@@ -3,9 +3,8 @@
 
 # diaThor
 
-<!-- badges: start -->
-
-<!-- badges: end -->
+*María Mercedes Nicolosi Gelis, Belén Sathicq, Joaquín Cochero*
+<!-- badges: start --> <!-- badges: end -->
 
 DiaThor calculates several diatom-based indices commonly used for water
 quality assesment, directly from your species’ data
