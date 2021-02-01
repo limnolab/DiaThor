@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# diaThor
+# DiaThor
 
 *María Mercedes Nicolosi Gelis, Belén Sathicq, Joaquín Cochero*
 <!-- badges: start --> <!-- badges: end -->
