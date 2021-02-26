@@ -1,6 +1,5 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
 # DiaThor
 
 *María Mercedes Nicolosi Gelis, Belén Sathicq, Joaquín Cochero*
@@ -137,3 +136,5 @@ published on 14-09-2020**
 
 The GitHub version of the package will update to the most recent
 database, if it is different to the current internal version.
+
+Current version 0.04
