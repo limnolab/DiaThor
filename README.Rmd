@@ -23,7 +23,7 @@ DiaThor calculates several diatom-based indices commonly used for water quality 
 
 ## Description
 
-The package calculates multiple biotic indices using diatoms from environmental samples. Diatom species are recognized by their acronym or by their species' name using a heuristic search, and their ecological data is retrieved from multiple sources. 
+The package calculates multiple biotic indices using diatoms from environmental samples. Diatom species are recognized by their species' name using a heuristic search, and their ecological data is retrieved from multiple sources. 
 
 Morphological information about the species is retrieved from the 'Diat.Barcode' project:
 
@@ -31,11 +31,13 @@ Morphological information about the species is retrieved from the 'Diat.Barcode'
 
 Size class classification is obtained from:
 
-* Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
+* Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. 
+https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html
 
 Guild classification is obtained from:
 
-* Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
+* Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. 
+https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html
 
 Ecological preferences are obtained form:
 

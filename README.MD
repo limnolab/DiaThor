@@ -1,6 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-# DiaThor
+
+# diaThor
 
 *María Mercedes Nicolosi Gelis, Belén Sathicq, Joaquín Cochero*
 <!-- badges: start --> <!-- badges: end -->
@@ -11,8 +12,7 @@ quality assesment, directly from your species’ data
 ## Description
 
 The package calculates multiple biotic indices using diatoms from
-environmental samples. Diatom species are recognized by their acronym or
-by their species’ name using a heuristic search, and their ecological
+environmental samples. Diatom species are recognized by their species’ name using a heuristic search, and their ecological
 data is retrieved from multiple sources.
 
 Morphological information about the species is retrieved from the
@@ -28,13 +28,15 @@ Size class classification is obtained from:
 
   - Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological
     guilds of diatoms in European rivers. Knowledge and management of
-    aquatic ecosystems, 406: 1-14. <DOI:10.1051/kmae/2012018>
+    aquatic ecosystems, 406: 1-14.
+    <https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html>
 
 Guild classification is obtained from:
 
   - Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological
     guilds of diatoms in European rivers. Knowledge and management of
-    aquatic ecosystems, 406: 1-14. <DOI:10.1051/kmae/2012018>
+    aquatic ecosystems, 406: 1-14.
+    <https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html>
 
 Ecological preferences are obtained form:
 
@@ -136,5 +138,3 @@ published on 14-09-2020**
 
 The GitHub version of the package will update to the most recent
 database, if it is different to the current internal version.
-
-Current version 0.04
