@@ -1,7 +1,7 @@
 Package: diathor
 Type: Package
 Title: Calculate Ecological Information and Diatom Based Indices
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
     person("María Mercedes", "Nicolosi Gelis", email = "mercedesnicolosi@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0001-6324-7930")),
     person("María Belén", "Sathicq", email = "mbelen@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0002-3534-8950")),
@@ -13,7 +13,8 @@ Description:
     It outputs both a dataframe with all the results and plots of all the obtained data in a defined output folder.
     Sample data was taken from Nicolosi Gelis, Cochero & Gómez (2020, <doi:10.1016/j.ecolind.2019.105951>).
     The package uses the 'Diat.Barcode' database to calculate morphological and ecological information by Rimet & Couchez (2012, <doi:10.1051/kmae/2012018>),
-    and calculates the DES index by Descy (1979, <http://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402>), 
+    and the combined classification of guilds and size classes established by B-Béres et al. (2017, <https://doi.org/10.1016/j.ecolind.2017.07.007>).
+    Current diatom-based biotic indices include the DES index by Descy (1979, <http://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402>), 
     the EPID index by Dell'Uomo (1996, ISBN: 3950009002), 
     the IDAP index by Prygiel & Coste (1993, <doi:10.1007/BF00028033>),
     the ID-CH index by Hürlimann & Niederhauser (2007, <https://www.bafu.admin.ch/bafu/fr/home/themes/eaux/publications/publications-eaux/methodes-analyse-appreciation-cours-eau-diatomees.html>),
@@ -23,7 +24,9 @@ Description:
     the LOBO index by Lobo, Callegaro, & Bender (2002, ISBN:9788585869908), 
     the SLA by Sládeček (1986, <doi:10.1002/aheh.19860140519>), 
     the TDI index by Kelly, & Whitton (1995, <doi:10.1007/BF00003802>), 
-    and the SPEAR(herbicide) index by Wood, Mitrovic, Lim, Warne, Dunlop, & Kefford (2019, <doi:10.1016/j.ecolind.2018.12.035>).
+    the SPEAR(herbicide) index by Wood, Mitrovic, Lim, Warne, Dunlop, & Kefford (2019, <doi:10.1016/j.ecolind.2018.12.035>),
+    the PBIDW index by Castro-Roa & Pinilla-Agudelo (2014), 
+    and the DISP index by Stenger-Kovácsa et al. (2018).
 License: GNU General Public License
 Encoding: UTF-8
 LazyData: true

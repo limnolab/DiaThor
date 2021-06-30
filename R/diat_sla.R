@@ -52,8 +52,7 @@ diat_sla <- function(resultLoad){
   taxaIn$species <- row.names(taxaIn)
 
   # #exact matches species in input data to acronym from index
-  # taxaIn$sla_v <- slaDB$sla_v[match(taxaIn$acronym, trimws(slaDB$acronym))]
-  # taxaIn$sla_s <- slaDB$sla_s[match(taxaIn$acronym, trimws(slaDB$acronym))]
+
   taxaIn$sla_v <- NA
   taxaIn$sla_s <- NA
   # #the ones still not found (NA), try against fullspecies

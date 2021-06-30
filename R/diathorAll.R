@@ -71,6 +71,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   lobo.results <- diat_lobo(resultmat)
   sla.results <- diat_sla(resultmat)
   spear.results <- diat_spear(resultmat)
+  pbidw.results <- diat_pbidw(resultmat)
+  disp.results <- diat_disp(resultmat)
+  cemfgs_rb.results <- diat_cemfgs_rb(resultmat)
+
 
   #sampledata
   sampleNames <- resultmat[[3]]
@@ -96,7 +100,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                      if(exists("idch.results")){idch.results},
                      if(exists("lobo.results")){lobo.results},
                      if(exists("sla.results")){sla.results},
-                     if(exists("spear.results")){spear.results}
+                     if(exists("spear.results")){spear.results},
+                     if(exists("pbidw.results")){pbidw.results},
+                     if(exists("disp.results")){disp.results},
+                     if(exists("cemfgs_rb.results")){cemfgs_rb.results}
                      ))
     #removes the Precision columns
     #singleTable[ , -which(names(singleTable) %in% "Precision")]
@@ -121,7 +128,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                      if(exists("idch.results")){idch.results},
                      if(exists("lobo.results")){lobo.results},
                      if(exists("sla.results")){sla.results},
-                     if(exists("spear.results")){spear.results}
+                     if(exists("spear.results")){spear.results},
+                     if(exists("pbidw.results")){pbidw.results},
+                     if(exists("disp.results")){disp.results},
+                     if(exists("cemfgs_rb.results")){cemfgs_rb.results}
     )
 
     names(listOfTables) <- c(if(exists("diversity.results")){"Diversity"},
@@ -141,7 +151,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                          if(exists("idch.results")){"IDCH index"},
                          if(exists("lobo.results")){"LOBO index"},
                          if(exists("sla.results")){"SLA index"},
-                         if(exists("spear.results")){"SPEAR index"}
+                         if(exists("spear.results")){"SPEAR index"},
+                         if(exists("pbidw.results")){"PBIDW index"},
+                         if(exists("disp.results")){"DISP index"},
+                         if(exists("cemfgs_rb.results")){"CEMFGS_RB Classification"}
                          )
 
   }
@@ -184,7 +197,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     sampleCol <- rep(sampleNames, ncol(result)) #gets sample names
     result <- tidyr::gather(result) #uses tidyr to rearrange the dataframe in a single column
     result$sampleCol <- sampleCol #adds another column with the sample names
-    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D99", "#6EE2FF99", "#F7C53099", "#95CC5E99", "#D0DFE699", "#F79D1E99", "#748AA699", "#82451c", "#4b7751", "#5fa413" )
+    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D", "#6EE2FF", "#F7C530", "#95CC5E", "#D0DFE6", "#F79D1E", "#748AA6", "#82451c", "#4b7751", "#5fa413", "#800080", "#690341" )
     key <- result$key
     value <- result$value
     print(ggplot2::ggplot(result, aes(fill=key, y=value, x=sampleCol)) +
@@ -219,8 +232,11 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     if(exists("size.results")){
       percentbarchart.plot(size.results, "Size classes") #default: piled bars
     }
-      if(exists("guilds.results")){
+    if(exists("guilds.results")){
       percentbarchart.plot(guilds.results, "Guilds")#default: piled bars
+    }
+    if(exists("cemfgs_rb.results")){
+      percentbarchart.plot(cemfgs_rb.results, "CEMFGS_RB Classification")#default: piled bars
     }
     if(exists("vandam.results")){
       vdamSalinity <- vandam.results[,startsWith(colnames(vandam.results),"VD.Salinity")]
@@ -322,7 +338,12 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     if(exists("spear.results")){
       print(loli.plot(as.data.frame(spear.results[,1]), "SPEAR", 0, 100, samplenames=rownames(spear.results))) #raw index
     }
-
+    if(exists("pbidw.results")){
+      print(loli.plot(as.data.frame(pbidw.results[,1]), "PBIDW", 0, 100, samplenames=rownames(pbidw.results))) #raw index
+    }
+    if(exists("disp.results")){
+      print(loli.plot(as.data.frame(disp.results[,1]), "DISP", 0, 6, samplenames=rownames(disp.results))) #raw index
+    }
     # Close the pdf file
     dev.off()
     print("Plots exported!")
@@ -372,7 +393,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                          as.data.frame(listOfTables[[15]]),
                          as.data.frame(listOfTables[[16]]),
                          as.data.frame(listOfTables[[17]]),
-                         as.data.frame(listOfTables[[18]])
+                         as.data.frame(listOfTables[[18]]),
+                         as.data.frame(listOfTables[[19]]),
+                         as.data.frame(listOfTables[[20]]),
+                         as.data.frame(listOfTables[[21]])
                           )
       names(resultList) <- c("Diversity",
                              "ChloroplastNumber",
@@ -391,7 +415,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                              "IDAP",
                              "IDCH",
                              "LOBO",
-                             "SPEAR"
+                             "SPEAR",
+                             "PBIDW",
+                             "DISP",
+                             "CEMFGS_RB"
                              )
       return(resultList)
     }
@@ -430,7 +457,10 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
            as.data.frame(listOfTables[[15]]),
            as.data.frame(listOfTables[[16]]),
            as.data.frame(listOfTables[[17]]),
-           as.data.frame(listOfTables[[18]])
+           as.data.frame(listOfTables[[18]]),
+           as.data.frame(listOfTables[[19]]),
+           as.data.frame(listOfTables[[20]]),
+           as.data.frame(listOfTables[[21]])
       )
       names(resultList) <- c("Diversity",
                              "ChloroplastNumber",
@@ -449,11 +479,12 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                              "IDAP",
                              "IDCH",
                              "LOBO",
-                             "SPEAR"
+                             "SPEAR",
+                             "PBIDW",
+                             "DISP",
+                             "CEMFGS_RB"
       )
       return(resultList)
     }
   }
-
-
 }

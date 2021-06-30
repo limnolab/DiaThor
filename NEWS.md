@@ -1,2 +1,2 @@
-#DiaThor 0.0.1 
-# Original release
+#DiaThor 0.0.7 
+# New indices, corrected

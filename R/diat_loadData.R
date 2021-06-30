@@ -297,6 +297,11 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   } else {
     taxaInRA <- taxaIn
   }
+  #converts to double taxaInRA
+  lastcol <- which(colnames(taxaInRA)=="new_species")
+  for (i in 1:(lastcol-1)){
+    taxaInRA[,i] <- as.double(taxaInRA[,i])
+  }
 
 
   #CREATES THE EXPORT PRODUCTS

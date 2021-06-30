@@ -37,6 +37,14 @@ Guild classification is obtained from:
     guilds of diatoms in European rivers. Knowledge and management of
     aquatic ecosystems, 406: 1-14.
     <https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html>
+    
+The combined classification of size classes and guilds is obtained from:
+
+  - B-Béres, V., Török, P., Kókai, Z., Lukács, Á., Enikő, T., Tóthmérész, 
+    B., & Bácsi, I. (2017). Ecological background of diatom functional 
+    groups: Comparability of classification systems. 
+    Ecological Indicators, 82, 183-188.
+    <https://www.sciencedirect.com/science/article/abs/pii/S1470160X1730420X>
 
 Ecological preferences are obtained form:
 
@@ -104,7 +112,17 @@ biotic index is retrieved from their original sources:
     Warne, M. S. J., Dunlop, J., & Kefford, B. J. (2019). Benthic
     diatoms as indicators of herbicide toxicity in rivers–A new SPEcies
     At Risk (SPEARherbicides) index. Ecological Indicators, 99, 203-213.
-
+  
+  - **PBIDW**: Castro-Roa, D., & Pinilla-Agudelo, G. (2014). Periphytic 
+    diatom index for assessing the ecological quality of the Colombian 
+    Andean urban wetlands of Bogotá. Limnetica, 33(2), 297-312.
+  
+  - **DISP**: Stenger-Kovács, C., Körmendi, K., Lengyel, E., Abonyi, A., 
+    Hajnal, É., Szabó, B., Buczkó, K. & Padisák, J. (2018). Expanding the trait-based 
+    concept of benthic diatoms: Development of trait-and species-based indices 
+    for conductivity as the master variable of ecological status in continental 
+    saline lakes. Ecological Indicators, 95, 63-74.
+    
 **Sample data included in the package is taken from**:
 
   - Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge;
