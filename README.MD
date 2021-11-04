@@ -147,6 +147,40 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("limnolab/DiaThor/")
 ```
 
+
+## Example
+
+To demonstrate the most common use of DiaThor, the package includes sample data with the abundance of 164 diatom species in 108 sampled sites (Nicolosi Gelis et al., 2020).
+
+# Installing the package and load it into the R environment
+``` r
+> install.packages("diathor")
+> library(diathor)
+```
+
+# Load the internally included sample data
+``` r
+> data("diat_sampleData")
+```
+
+# Run diaThorAll to get all the outputs from the sample data with the default settings, and store the results into the “results” object, to also retain the output within R
+``` r
+> results <- diaThorAll(diat_sampleData) #If the sample data was used
+```
+# Note: The package will request the Input file an Output folder through a dialog box
+``` r
+[1] "Select Input file"
+[1] "Select Results folder"
+```
+
+After the Results folder is selected, all the calculations conducted will be shown in the console
+
+# Optionally, run each individual function with the results of the diat_loadData() function, for instance:
+``` r
+> loadedData <- diat_loadData() # load data with the diat_loadData() function
+> results <- diat_ips(loadedData ) # use the diat_ips() function to calculate the IPS index with the loaded data
+```
+
 ## CRAN vs. GitHub package
 
 The package available in the CRAN repository does not automatically
