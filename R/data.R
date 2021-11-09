@@ -22,6 +22,16 @@
 #' @references Rimet F. & Bouchez A., 2012. Life-forms, cell-sizes and ecological guilds of diatoms in European rivers. Knowledge and management of aquatic ecosystems, 406: 1-14. DOI:10.1051/kmae/2012018
 "dbc_offline"
 
+#' taxaList
+#'
+#' List of taxa names used in all indices. Gets updated user-end if a new DBC is found
+#'
+#' @format A data frame with names of 9806 taxa
+#' @docType data
+#' @usage data(taxaList)
+#' @encoding UTF-8
+"taxaList"
+
 #' DES
 #'
 #' Index values for diatom species included in the DES index
@@ -188,3 +198,4 @@
 #' @source \url{https://www.sciencedirect.com/science/article/abs/pii/S1470160X1730420X}
 #' @references B-Béres, V., Török, P., Kókai, Z., Lukács, Á., Enikő, T., Tóthmérész, B., & Bácsi, I. (2017). Ecological background of diatom functional groups: Comparability of classification systems. Ecological Indicators, 82, 183-188.
 "cemfgs_rb"
+

@@ -107,7 +107,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
                      ))
     #removes the Precision columns
     #singleTable[ , -which(names(singleTable) %in% "Precision")]
-    singleTable <- singleTable[ , -which(startsWith(names(singleTable),"Precision")) ]
+    singleTable <- singleTable[ , -which(startsWith(names(singleTable),"num_taxa")) ]
 
     rownames(singleTable) <- sampleNames
   } else { #separate files for each result
@@ -428,14 +428,12 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
   if (exportFormat == 3) {
     if (singleResult == TRUE) {
       filename <- paste(exportName, " - Results.csv", sep ="")
-      # write.csv(singleTable, paste(resultsPath, "\\", filename, sep=""))
       write.csv(singleTable, file.path(resultsPath, filename))
 
       return(singleTable)
     } else {
       for (i in seq_along(listOfTables)) {
         filename <- paste(exportName, " - ",names(listOfTables)[i], ".csv", sep ="")
-        # write.csv(listOfTables[[i]], paste(resultsPath, "\\", filename, sep=""))
         write.csv(singleTable, file.path(resultsPath, filename))
 
       }

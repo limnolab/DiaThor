@@ -12,7 +12,7 @@
 #' \item Van Dam, H., Mertens, A., & Sinkeldam, J. (1994). A coded checklist and ecological indicator values of freshwater diatoms from the Netherlands. Netherland Journal of Aquatic Ecology, 28(1), 117-133.
 #' }
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' # Example using sample data included in the package (sampleData):
 #' data("diat_sampleData")
 #' # First, the diat_loadData() function has to be called to read the data
@@ -78,24 +78,10 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
     print("Exporting detailed reports for VanDam ecological preferences")
     print(resultsPath)
     vandamtaxafile = paste("VanDam Taxa used.txt", sep = "")
-   # write("TAXA USED FOR EACH ECOLOGICAL VARIABLE USING VANDAM's CLASSIFICATION",
-    #      paste(resultsPath, "\\", vandamtaxafile, sep = ""))
-
     write("TAXA USED FOR EACH ECOLOGICAL VARIABLE USING VANDAM's CLASSIFICATION",
           file = file.path(resultsPath,vandamtaxafile))
-
-    # write("These taxa were included because: ", paste(resultsPath,
-    #                                                   "\\", vandamtaxafile, sep = ""), append = TRUE)
     write("These taxa were included because: ", file = file.path(resultsPath,vandamtaxafile), append = TRUE)
-
-    # write("a) they had a reliable classification in VanDam's classification system",
-    #       paste(resultsPath, "\\", vandamtaxafile, sep = ""),
-    #       append = TRUE)
     write("a) they had a reliable classification in VanDam's classification system", file = file.path(resultsPath,vandamtaxafile), append = TRUE)
-
-    # write("b) they had a relative abundance in the sample > 0",
-    #       paste(resultsPath, "\\", vandamtaxafile, sep = ""),
-    #       append = TRUE)
     write("b) they had a relative abundance in the sample > 0", file = file.path(resultsPath,vandamtaxafile), append = TRUE)
 
   }
@@ -232,15 +218,9 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
     if (vandamReports & exists("resultsPath")){
       print_taxa = lapply(te2, function(x)taxaInRA$recognizedSp[x])
       for (print.i in seq_along(print_taxa)){
-        # write(paste(str_to_upper(mess_var), "- Sample:", colnames(taxaInRA)[print.i]),
-        #       paste(resultsPath, "\\", vandamtaxafile, sep = ""),
-        #       append = TRUE)
         write(paste(str_to_upper(mess_var), "- Sample:", colnames(taxaInRA)[print.i]),
               file.path(resultsPath, vandamtaxafile),
               append = TRUE)
-#
-#         write(print_taxa[[print.i]], paste(resultsPath,
-#                                            "\\", vandamtaxafile, sep = ""), append = TRUE)
         write(print_taxa[[print.i]], file.path(resultsPath, vandamtaxafile), append = TRUE)
       }
     }

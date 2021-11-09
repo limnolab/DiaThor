@@ -5,10 +5,12 @@
 \alias{diat_pbidw}
 \title{Calculates the PBIDW Index (PBIDW)}
 \usage{
-diat_pbidw(resultLoad)
+diat_pbidw(resultLoad, maxDistTaxa = 2)
 }
 \arguments{
 \item{resultLoad}{The resulting list obtained from the diat_loadData() function}
+
+\item{maxDistTaxa}{Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2}
 }
 \description{
 The input for all of these functions is the resulting dataframe (resultLoad) obtained from the diat_loadData() function

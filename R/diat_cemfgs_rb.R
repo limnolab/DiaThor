@@ -42,7 +42,6 @@ diat_cemfgs_rb <- function(resultLoad){
 
   taxaIn <- resultLoad[[1]] #1 = Relative abundance, 2=abundance
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   cemfgs_rbDB <- diathor::cemfgs_rb
 
@@ -74,7 +73,7 @@ diat_cemfgs_rb <- function(resultLoad){
   LS1 <- LS2 <- LS3 <- LS4 <- LS5 <- NULL
   MS1 <- MS2 <- MS3 <- MS4 <- MS5 <- NULL
   PS1 <- PS2 <- PS3 <- PS4 <- PS5 <- NULL
-  CEMFGS_class_Indet <- CEMFGS_Taxa_used <- NULL
+  CEMFGS_class_Indet <- CEMFGS_Taxa_used <- CEMFGS_RB_Indet <- NULL
 
   data.table::setDT(taxaIn)
 
@@ -122,7 +121,6 @@ diat_cemfgs_rb <- function(resultLoad){
   ))
   #replace NAs for 0
   cemfgs_rb.results[is.na(cemfgs_rb.results)] = 0
-
   cemfgs_rb.results[, `CEMFGS_RB_Indet` := round(100 - ( HS1 + HS2 + HS3 + HS4 + HS5 + LS1 + LS2 + LS3 + LS4 + LS5 + MS1 + MS2 + MS3 + MS4 + MS5 + PS1 + PS2 + PS3 + PS4 + PS5), 1)]
 
 
@@ -130,7 +128,10 @@ diat_cemfgs_rb <- function(resultLoad){
   cemfgs_rb_binary <- as.numeric(!is.na(taxaIn$cemfgs_rb))
 
   for (sampleNumber in 1:(lastcol - 1)) {
-    CEMFGS_RGtaxaused <- length(which(cemfgs_rb_binary * taxaIn[,..sampleNumber] > 0))*100 / length(cemfgs_rb_binary)
+    #CEMFGS_RGtaxaused <- length(which(cemfgs_rb_binary * taxaIn[,..sampleNumber] > 0))
+    CEMFGS_RGtaxaused <- length(which(cemfgs_rb_binary * taxaIn[,sampleNumber, with = F] > 0))
+
+    #CEMFGS_RGtaxaused <- length(which(cemfgs_rb_binary * taxaIn[,..sampleNumber] > 0))*100 / length(cemfgs_rb_binary)
     #The .. before sampleNumber are the new way to reference the variable in the data.table package
     cemfgs_rb.results$CEMFGS_RB_Taxa_used [sampleNumber] <- CEMFGS_RGtaxaused
 
@@ -143,10 +144,8 @@ diat_cemfgs_rb <- function(resultLoad){
 
   cemfgs_rb.results <- as.data.frame(cemfgs_rb.results2) #need to convert it to dataframe explicitly to plot
 
-
-
-
   #TAXA INCLUSION
+  resultsPath <- resultLoad[[4]]
   #taxa with acronyms
   taxaIncluded <- taxaIn$species[which(!is.na(taxaIn$cemfgs_rb))]
   inclusionmatrix <- read.csv(file.path(resultsPath, "Taxa included.csv"))

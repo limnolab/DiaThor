@@ -24,7 +24,7 @@ Van Dam classification is obtained form:
 }
 }
 \examples{
-\donttest{
+\dontrun{
 # Example using sample data included in the package (sampleData):
 data("diat_sampleData")
 # First, the diat_loadData() function has to be called to read the data

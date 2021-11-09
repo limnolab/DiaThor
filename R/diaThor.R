@@ -93,6 +93,12 @@
 #' diat_spear()
 #' diat_pbidw()
 #' diat_disp()
+#' diat_idap()
+#' diat_cemfgs_rb()
+#' diat_checkName()
+#' diat_getDiatBarcode()
+#' diat_taxaList()
+#' update_algaebase_list()
 #'
 #' @docType package
 #' @name diaThor

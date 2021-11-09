@@ -1,7 +1,7 @@
 Package: diathor
 Type: Package
 Title: Calculate Ecological Information and Diatom Based Indices
-Version: 0.0.7
+Version: 0.0.8
 Authors@R: c(
     person("María Mercedes", "Nicolosi Gelis", email = "mercedesnicolosi@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0001-6324-7930")),
     person("María Belén", "Sathicq", email = "mbelen@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0002-3534-8950")),
@@ -41,7 +41,9 @@ Imports:
     data.table, 
     purrr,
     stringr,
-    tibble
+    tibble,
+    diatbarcode,
+    algaeClassify
 Suggests: 
     knitr,
     rmarkdown

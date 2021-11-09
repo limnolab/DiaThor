@@ -1,5 +1,6 @@
 #' Calculates the PBIDW Index (PBIDW)
 #' @param resultLoad The resulting list obtained from the diat_loadData() function
+#' @param maxDistTaxa Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2
 #' @description
 #' The input for all of these functions is the resulting dataframe (resultLoad) obtained from the diat_loadData() function
 #' A CSV or dataframe cannot be used directly with these functions, they have to be loaded first with the diat_loadData() function
@@ -32,7 +33,7 @@
 ###### ---------- FUNCTION FOR PBIDW INDEX (Castro-Roa & Pinilla-Agudelo,2014)---------- ########
 ### INPUT: resultLoad Data
 ### OUTPUTS: dataframe with PBIDW index per sample
-diat_pbidw <- function(resultLoad){
+diat_pbidw <- function(resultLoad, maxDistTaxa = 2){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
@@ -45,7 +46,6 @@ diat_pbidw <- function(resultLoad){
 
   taxaIn <- resultLoad[[2]]
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   pbidwDB <- diathor::pbidw
 
@@ -54,9 +54,52 @@ diat_pbidw <- function(resultLoad){
 
   # #the ones still not found (NA), try against fullspecies
   taxaIn$pbidw_v <- NA
+  print("Calculating PBIDW index")
+
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$pbidw_v[i])){
-      taxaIn$pbidw_v[i] <- pbidwDB$pbidw_v[match(trimws(rownames(taxaIn[i,])), trimws(pbidwDB$fullspecies))]
+      # New in v0.0.8
+      # Uses the stringdist package to find species by names heuristically, with a maximum distance = maxDistTaxa
+      # if multiple are found, uses majority consensus to select the correct index value
+      # 1) find the species by heuristic search.
+      spname <- trimws(tolower(rownames(taxaIn[i,])))
+
+      species_found <- pbidwDB[stringdist::ain(trimws(tolower(pbidwDB$fullspecies)),spname, maxDist=maxDistTaxa, matchNA = FALSE),]
+      # 2) if found, build majority consensus for sensitivity values
+      if (nrow(species_found) == 1){
+        vvalue <- as.numeric(names(which.max(table(species_found$pbidw_v))))
+        taxaIn$new_species[i] <- species_found$fullspecies[1]
+      } else if (nrow(species_found) > 1){
+        species_found <- species_found[match(spname, trimws(tolower(species_found$fullspecies)), nomatch=1),]
+        vvalue <- as.numeric(names(which.max(table(species_found$pbidw_v))))
+      } else if (nrow(species_found) == 0){
+        #species not found, try tautonomy in variety
+        spsplit <- strsplit(spname, " ") #split the name
+        #if has epiteth
+        if (length(spsplit[[1]])>1){
+          #create vectors with possible epiteths
+          newspname <- paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "var.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ") #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "fo.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "subsp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "spp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "ssp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "var.", spsplit[[1]][[2]], "fo.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+
+          #search again against all possible epiteths
+          species_found <- pbidwDB[stringdist::ain(trimws(tolower(pbidwDB$fullspecies)),newspname, maxDist=maxDistTaxa, matchNA = FALSE),]
+          if (nrow(species_found) > 0){
+            #found with tautonomy
+            vvalue <- as.numeric(names(which.max(table(species_found$pbidw_v[1]))))
+            taxaIn$new_species[i] <- species_found$fullspecies[1]
+          } else {
+            #species not found, make everything NA
+            vvalue = NA
+            svalue = NA
+          }
+        }
+      }
+    #records the final consensus value
+    taxaIn$pbidw_v[i] <- vvalue
     }
   }
 
@@ -64,37 +107,47 @@ diat_pbidw <- function(resultLoad){
   lastcol <- which(colnames(taxaIn)=="new_species")
 
   #######--------PBIDW INDEX START --------#############
-  print("Calculating PBIDW index")
+
   #creates results dataframe
   pbidw.results <- data.frame(matrix(ncol = 2, nrow = (lastcol-1)))
-  colnames(pbidw.results) <- c("PBIDW", "Precision")
+  colnames(pbidw.results) <- c("PBIDW", "num_taxa")
   #finds the column
   pbidw_v <- (taxaIn[,"pbidw_v"])
+
+
+  # Prints the number of taxa recognized for this index, regardless of their abundance
+  # It is therefore the same for all samples
+
+  number_recognized_taxa <- round((100 - (sum(is.na(taxaIn$pbidw_v)) / nrow(taxaIn))*100),1)
+  print(paste("Taxa recognized to be used in PBIDW index: ", number_recognized_taxa, "%"))
+
 
   #PROGRESS BAR
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
-    PBIDWtaxaused <- (length(which(pbidw_v * taxaIn[,sampleNumber] > 0))*100 / length(pbidw_v))
+    #Revised v0.0.8
+    num_taxa <- length(which(pbidw_v * taxaIn[,sampleNumber] > 0))
     #remove the NA
     pbidw_v[is.na(pbidw_v)] = 0
     PBIDW <- sum((as.double(pbidw_v)))/length(which(pbidw_v * taxaIn[,sampleNumber] > 0)) #raw value
-    pbidw.results[sampleNumber, ] <- c(PBIDW, PBIDWtaxaused)
+    pbidw.results[sampleNumber, ] <- c(PBIDW, num_taxa)
     #update progressbar
     setTxtProgressBar(pb, sampleNumber)
   }
   #close progressbar
   close(pb)
   #######--------PBIDW INDEX: END--------############
-  #PRECISION
+
+  #PRECISION RECORDING
   resultsPath <- resultLoad[[4]]
-  #precisionmatrix <- read.csv(paste(resultsPath,"\\Precision.csv", sep=""))
-  precisionmatrix <- read.csv(file.path(resultsPath, "Precision.csv"))
-  precisionmatrix <- cbind(precisionmatrix, pbidw.results$Precision)
+  #reads the csv file
+  precisionmatrix <- read.csv(file.path(resultsPath, "num_taxa.csv"))
+  #joins with the precision column
+  precisionmatrix <- cbind(precisionmatrix, pbidw.results$num_taxa)
   precisionmatrix <- precisionmatrix[-(1:which(colnames(precisionmatrix)=="Sample")-1)]
-  names(precisionmatrix)[names(precisionmatrix)=="pbidw.results$Precision"] <- "PBIDW"
-  # write.csv(precisionmatrix, paste(resultsPath,"\\Precision.csv", sep=""))
-  write.csv(precisionmatrix, file.path(resultsPath, "Precision.csv"))
+  names(precisionmatrix)[names(precisionmatrix)=="pbidw.results$num_taxa"] <- "PBIDW"
+  write.csv(precisionmatrix, file.path(resultsPath, "num_taxa.csv"))
   #END PRECISION
 
   #TAXA INCLUSION

@@ -43,7 +43,6 @@ diat_guilds <- function(resultLoad){
 
   taxaInEco <- resultLoad[[5]]
 
-
   #checks thata taxaInEco (taxaInEco from diat_Load) has at least recognized some species
   if (nrow(taxaInEco)==0){
     print("No species were recognized for guild calculations")
@@ -58,7 +57,6 @@ diat_guilds <- function(resultLoad){
   #Convert taxaIn sample data to Relative Abundance data
   taxaInRA <- taxaInEco
 
-  ###### MODIFIED BY JJ
   taxaInRA_samples = taxaInRA[, 1:(lastcol - 1)]
   setDT(taxaInRA_samples)
   # replace NA with 0

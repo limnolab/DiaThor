@@ -1,5 +1,6 @@
 #' Calculates the Diatom Index for Soda Pans (DISP)
 #' @param resultLoad The resulting list obtained from the diat_loadData() function
+#' @param maxDistTaxa Integer. Number of characters that can differ in the species' names when compared to the internal database's name in the heuristic search. Default = 2
 #' @description
 #' The input for all of these functions is the resulting dataframe (resultLoad) obtained from the diat_loadData() function
 #' A CSV or dataframe cannot be used directly with these functions, they have to be loaded first with the diat_loadData() function
@@ -32,7 +33,7 @@
 ###### ---------- FUNCTION FOR DISP INDEX (Leclercq & Maq. 1988)---------- ########
 ### INPUT: resultLoad Data
 ### OUTPUTS: dataframe with DISP index per sample
-diat_disp <- function(resultLoad){
+diat_disp <- function(resultLoad, maxDistTaxa = 2){
 
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(resultLoad)) {
@@ -45,7 +46,6 @@ diat_disp <- function(resultLoad){
 
   taxaIn <- resultLoad[[1]] #1 = Relative Abundance, 2 = abundance
 
-  ### START NEW CORRECTIONS
   #Loads the species list specific for this index
   dispDB <- diathor::disp
 
@@ -55,10 +55,55 @@ diat_disp <- function(resultLoad){
   # #the ones still not found (NA), try against fullspecies
   taxaIn$disp_v <- NA
   taxaIn$disp_s <- NA
+  print("Calculating DISP index")
   for (i in 1:nrow(taxaIn)) {
     if (is.na(taxaIn$disp_s[i]) | is.na(taxaIn$disp_v[i])){
-      taxaIn$disp_v[i] <- dispDB$disp_v[match(trimws(rownames(taxaIn[i,])), trimws(dispDB$fullspecies))]
-      taxaIn$disp_s[i] <- dispDB$disp_s[match(trimws(rownames(taxaIn[i,])), trimws(dispDB$fullspecies))]
+      # New in v0.0.8
+      # Uses the stringdist package to find species by names heuristically, with a maximum distance = maxDistTaxa
+      # if multiple are found, uses majority consensus to select the correct index value
+      # 1) find the species by heuristic search.
+      spname <- trimws(tolower(rownames(taxaIn[i,])))
+
+      species_found <- dispDB[stringdist::ain(trimws(tolower(dispDB$fullspecies)),spname, maxDist=maxDistTaxa, matchNA = FALSE),]
+      # 2) if found, build majority consensus for sensitivity values
+      if (nrow(species_found) == 1){
+        vvalue <- as.numeric(names(which.max(table(species_found$disp_v))))
+        svalue <- as.numeric(names(which.max(table(species_found$disp_s))))
+        taxaIn$new_species[i] <- species_found$fullspecies[1]
+      } else if (nrow(species_found) > 1){
+        species_found <- species_found[match(spname, trimws(tolower(species_found$fullspecies)), nomatch=1),]
+        vvalue <- as.numeric(names(which.max(table(species_found$disp_v))))
+        svalue <- as.numeric(names(which.max(table(species_found$disp_s))))
+      } else if (nrow(species_found) == 0){
+        #species not found, try tautonomy in variety
+        spsplit <- strsplit(spname, " ") #split the name
+        #if has epiteth
+        if (length(spsplit[[1]])>1){
+          #create vectors with possible epiteths
+          newspname <- paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "var.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ") #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "fo.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "subsp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "spp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "ssp.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+          newspname <- c(newspname, paste(spsplit[[1]][[1]], spsplit[[1]][[2]], "var.", spsplit[[1]][[2]], "fo.", spsplit[[1]][[length(spsplit[[1]])]], sep = " ")) #create new sp name
+
+          #search again against all possible epiteths
+          species_found <- dispDB[stringdist::ain(trimws(tolower(dispDB$fullspecies)),newspname, maxDist=maxDistTaxa, matchNA = FALSE),]
+          if (nrow(species_found) > 0){
+            #found with tautonomy
+            vvalue <- as.numeric(names(which.max(table(species_found$disp_v[1]))))
+            svalue <- as.numeric(names(which.max(table(species_found$disp_s[1]))))
+            taxaIn$new_species[i] <- species_found$fullspecies[1]
+          } else {
+            #species not found, make everything NA
+            vvalue = NA
+            svalue = NA
+          }
+        }
+      }
+      #records the final consensus value
+      taxaIn$disp_v[i] <- vvalue
+      taxaIn$disp_s[i] <- svalue
     }
   }
 
@@ -66,36 +111,49 @@ diat_disp <- function(resultLoad){
   lastcol <- which(colnames(taxaIn)=="new_species")
 
   #######--------DISP INDEX START --------#############
-  print("Calculating DISP index")
+
   #creates results dataframe
   disp.results <- data.frame(matrix(ncol = 2, nrow = (lastcol-1)))
-  colnames(disp.results) <- c("DISP", "Precision")
+  colnames(disp.results) <- c("DISP", "num_taxa")
   #finds the column
   disp_s <- (taxaIn[,"disp_s"])
   disp_v <- (taxaIn[,"disp_v"])
+
+  # Prints the number of taxa recognized for this index, regardless of their abundance
+  # It is therefore the same for all samples
+
+  number_recognized_taxa <- round((100 - (sum(is.na(taxaIn$disp_s)) / nrow(taxaIn))*100),1)
+  print(paste("Taxa recognized to be used in DISP index: ", number_recognized_taxa, "%"))
+
+
   #PROGRESS BAR
   pb <- txtProgressBar(min = 1, max = (lastcol-1), style = 3)
   for (sampleNumber in 1:(lastcol-1)){ #for each sample in the matrix
     #how many taxa will be used to calculate?
-    DISPtaxaused <- (length(which(disp_s * as.double(taxaIn[,sampleNumber]) > 0))*100 / length(disp_s))
+    # New in v0.0.8
+    num_taxa <- length(which(disp_s * taxaIn[,sampleNumber] > 0))
     #remove the NA
     disp_s[is.na(disp_s)] = 0
     disp_v[is.na(disp_v)] = 0
     DISP <- sum((taxaIn[,sampleNumber]*as.double(disp_s)*as.double(disp_v)))/sum(taxaIn[,sampleNumber]*as.double(disp_v)) #raw value
-    disp.results[sampleNumber, ] <- c(DISP, DISPtaxaused)
+    disp.results[sampleNumber, ] <- c(DISP, num_taxa)
     #update progressbar
     setTxtProgressBar(pb, sampleNumber)
   }
   #close progressbar
   close(pb)
   #######--------DISP INDEX: END--------############
-  #PRECISION
+
+
+  #PRECISION RECORDING
   resultsPath <- resultLoad[[4]]
-  precisionmatrix <- read.csv(file.path(resultsPath, "Precision.csv"))
-  precisionmatrix <- cbind(precisionmatrix, disp.results$Precision)
+  #reads the csv file
+  precisionmatrix <- read.csv(file.path(resultsPath, "num_taxa.csv"))
+  #joins with the precision column
+  precisionmatrix <- cbind(precisionmatrix, disp.results$num_taxa)
   precisionmatrix <- precisionmatrix[-(1:which(colnames(precisionmatrix)=="Sample")-1)]
-  names(precisionmatrix)[names(precisionmatrix)=="disp.results$Precision"] <- "DISP"
-  write.csv(precisionmatrix, file.path(resultsPath, "Precision.csv"))
+  names(precisionmatrix)[names(precisionmatrix)=="disp.results$num_taxa"] <- "DISP"
+  write.csv(precisionmatrix, file.path(resultsPath, "num_taxa.csv"))
   #END PRECISION
 
   #TAXA INCLUSION
