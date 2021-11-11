@@ -98,24 +98,24 @@ diat_guilds <- function(resultLoad){
     guild_Plank[is.na(guild_Plank)] = 0
     #total abundance for each guild in each sample
     #conditional
-    if (length(taxaInRA[which(guild_HP == 1)])){
+    if (nrow(taxaInRA[which(guild_HP == 1),sampleNumber])>1){
       guild_HP_ab <- sum(taxaInRA[which(guild_HP == 1), sampleNumber, with = F], na.rm = T)
     } else {
       guild_HP_ab <- 0
     }
 
-    if (length(taxaInRA[which(guild_LP == 1)])){
+    if (nrow(taxaInRA[which(guild_LP == 1),sampleNumber])>1){
       guild_LP_ab <- sum(taxaInRA[which(guild_LP == 1), sampleNumber, with = F], na.rm = T)
     } else {
       guild_LP_ab <- 0
     }
 
-    if (length(taxaInRA[which(guild_Mot == 1)])){
+    if (nrow(taxaInRA[which(guild_Mot == 1),sampleNumber])>1){
       guild_Mot_ab <- sum(taxaInRA[which(guild_Mot == 1), sampleNumber, with = F], na.rm = T)
     } else {
       guild_Mot_ab <- 0
     }
-    if (length(taxaInRA[which(guild_Plank == 1)])){
+    if (nrow(taxaInRA[which(guild_Plank == 1),sampleNumber])>1){
       guild_Plank_ab <- sum(taxaInRA[which(guild_Plank == 1), sampleNumber, with = F], na.rm = T)
     } else {
       guild_Plank_ab <- 0
