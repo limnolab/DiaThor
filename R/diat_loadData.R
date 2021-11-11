@@ -103,7 +103,7 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
 
 
   ########## LINK WITH DIAT.BARCODE DATABASE (v.0.0.8)
-  getDiatBarcode <- diat_getDiatBarcode() #function that gets the Diat.Barcode database
+  getDiatBarcode <- diathor::diat_getDiatBarcode() #function that gets the Diat.Barcode database
   ecodata <- as.data.frame(getDiatBarcode[1]) #ecodata
   taxaList <- as.data.frame(getDiatBarcode[2]) #taxaList: diat_getDiatBarcode uses the taxaList() function to build a single list with all taxa. This is the result
 
