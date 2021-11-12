@@ -13,8 +13,8 @@ Description:
     It outputs both a dataframe with all the results and plots of all the obtained data in a defined output folder.
     Sample data was taken from Nicolosi Gelis, Cochero & Gómez (2020, <doi:10.1016/j.ecolind.2019.105951>).
     The package uses the 'Diat.Barcode' database to calculate morphological and ecological information by Rimet & Couchez (2012, <doi:10.1051/kmae/2012018>),
-    and the combined classification of guilds and size classes established by B-Béres et al. (2017, <https://doi.org/10.1016/j.ecolind.2017.07.007>).
-    Current diatom-based biotic indices include the DES index by Descy (1979, <http://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402>), 
+    and the combined classification of guilds and size classes established by B-Béres et al. (2017, <doi.org:10.1016/j.ecolind.2017.07.007>).
+    Current diatom-based biotic indices include the DES index by Descy (1979, <https://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402>), 
     the EPID index by Dell'Uomo (1996, ISBN: 3950009002), 
     the IDAP index by Prygiel & Coste (1993, <doi:10.1007/BF00028033>),
     the ID-CH index by Hürlimann & Niederhauser (2007, <https://www.bafu.admin.ch/bafu/fr/home/themes/eaux/publications/publications-eaux/methodes-analyse-appreciation-cours-eau-diatomees.html>),
@@ -42,7 +42,6 @@ Imports:
     purrr,
     stringr,
     tibble,
-    diatbarcode,
     algaeClassify
 Suggests: 
     knitr,

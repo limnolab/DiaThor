@@ -58,7 +58,7 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
     vandam.results <- NULL
     return(vandam.results)
   }
-  v1 <- v2 <- vd1 <- vd2 <- vd3 <- vd4 <- vd5 <-NULL
+  v1 <- v2 <- vd1 <- vd2 <- vd3 <- vd4 <- vd5 <- vd6 <- vd7 <-NULL
   #gets the column named "species", everything before that is a sample
   lastcol <- which(colnames(taxaInEco)=="species")
   taxaInRA <- taxaInEco
@@ -137,6 +137,8 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
       "VD Trophic 3",
       "VD Trophic 4",
       "VD Trophic 5",
+      "VD Trophic 6",
+      "VD Trophic 7",
       "VD Trophic Indet",
       "VD Trophic Taxa used"
     )
@@ -185,11 +187,26 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
                                        lapply(.SD, sum, na.rm = TRUE),
                                        .SDcols = 1:(lastcol - 1)])]
     }
+
+    if (i == 6){
+      lp_data[, vd6 := unlist(taxaInRA[which(vdam_var == 6),
+                                       lapply(.SD, sum, na.rm = TRUE),
+                                       .SDcols = 1:(lastcol - 1)])]
+      lp_data[, vd7 := unlist(taxaInRA[which(vdam_var == 7),
+                                       lapply(.SD, sum, na.rm = TRUE),
+                                       .SDcols = 1:(lastcol - 1)])]
+    }
+
+   #remove possible NAs
+    lp_data[is.na(lp_data)] <- 0
+
     ## indet ##
     if (i < 3) {
       lp_data[      , v1 := round(100 - (vd1 + vd2 + vd3 + vd4), 1)]
-    } else {
+    } else if (i == 4 | i == 5){
       lp_data[      , v1 := round(100 - (vd1 + vd2 + vd3 + vd4 + vd5), 1)]
+    } else if (i == 6){
+      lp_data[      , v1 := round(100 - (vd1 + vd2 + vd3 + vd4 + vd5 + vd6 +vd7), 1)]
     }
     lp_data[v1 < 0, v1 := 0]
     ##  taxa used ##

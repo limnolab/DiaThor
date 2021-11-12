@@ -180,7 +180,6 @@ Optionally, run each individual function with the results of the diat_loadData()
 > results <- diat_ips(loadedData ) # use the diat_ips() function to calculate the IPS index with the loaded data
 ```
 
-
 ## CRAN vs. GitHub package
 
 The package available in the CRAN repository does not automatically

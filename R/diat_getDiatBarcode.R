@@ -34,32 +34,32 @@ diat_getDiatBarcode <- function() {
 
       ###### THIS SECTION IS FOR THE CRAN PROJECT ONLY
       # print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
-      # print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
+      # print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021")
       # dbc <- diathor::dbc_offline
       ###### END OF CRAN VERSION
 
       ###### THIS SECTION IS FOR THE GITHUB PROJECT ONLY
-      print("Attempting to download diat.barcode from website")
-
-      #try to get the updated package
-      tryCatch(
-        {
+       print("Attempting to download diat.barcode from website")
+      #
+       #try to get the updated package
+       tryCatch(
+         {
           dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
-          print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
-        },
-        error = function(cond){
-          print("Latest version of Diat.barcode cannot be downloaded")
-          print("Using internal database, Diat.barcode v.9.0 published on 14-09-2020. It might need to be updated")
-          dbc <- diathor::dbc_offline
-
-        }
-      )
+           print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
+         },
+         error = function(cond){
+           print("Latest version of Diat.barcode cannot be downloaded")
+           print("Using internal database, Diat.barcode v.10.1 published on 25-06-2021. It might need to be updated")
+           dbc <- diathor::dbc_offline
+      
+         }
+       )
       ###### END OF GITHUB VERSION
 
     }
   } else {
     print("Latest version of 'Diat.barcode' unknown")
-    print("Using internal database, 'Diat.barcode' v.9.0 published on 14-09-2020")
+    print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021")
     dbc <- diathor::dbc_offline
   }
   ### Double checks that database got loaded correctly or cancels alltogether
