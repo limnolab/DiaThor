@@ -5,11 +5,9 @@
 \name{des}
 \alias{des}
 \title{DES}
-\format{
-A data frame with the ecological values for 622 species
-}
+\format{A data frame with the ecological values for 622 species}
 \source{
-\url{http://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402}
+\url{https://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402}
 }
 \usage{
 data(des)

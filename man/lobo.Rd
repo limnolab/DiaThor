@@ -5,9 +5,7 @@
 \name{lobo}
 \alias{lobo}
 \title{LOBO}
-\format{
-A data frame with the ecological values for 297 species
-}
+\format{A data frame with the ecological values for 297 species}
 \usage{
 data(lobo)
 }

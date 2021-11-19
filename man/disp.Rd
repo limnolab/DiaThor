@@ -5,9 +5,7 @@
 \name{disp}
 \alias{disp}
 \title{DISP}
-\format{
-A data frame with the ecological values for 143 species
-}
+\format{A data frame with the ecological values for 143 species}
 \source{
 \url{https://www.sciencedirect.com/science/article/abs/pii/S1470160X18305478}
 }

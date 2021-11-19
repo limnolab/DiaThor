@@ -5,9 +5,7 @@
 \name{epid}
 \alias{epid}
 \title{EPID}
-\format{
-A data frame with the ecological values for 1038 species
-}
+\format{A data frame with the ecological values for 1038 species}
 \source{
 \url{https://www.tib.eu/en/search/id/BLCP:CN034949165/Use-of-algae-for-monitoring-rivers-in-the-Czech?cHash=fdd9e0b1bf812a31ec0f692a273cab04}
 }

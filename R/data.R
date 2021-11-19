@@ -40,7 +40,7 @@
 #' @docType data
 #' @usage data(des)
 #' @encoding UTF-8
-#' @source \url{http://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402}
+#' @source \url{https://pascal-francis.inist.fr/vibad/index.php?action=getRecordDetail&idt=PASCAL8060205402}
 #' @references Descy, J. P. 1979. A new approach to water qualityestimation  using  diatom.  Beih.  Nov  Hedw. 64:305-323
 "des"
 

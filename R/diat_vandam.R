@@ -77,7 +77,7 @@ diat_vandam <- function(resultLoad, vandamReports=TRUE){
   if (vandamReports == TRUE & is.na(resultsPath) == FALSE) {
     print("Exporting detailed reports for VanDam ecological preferences")
     print(resultsPath)
-    vandamtaxafile = paste("VanDam Taxa used.txt", sep = "")
+    vandamtaxafile = paste("VanDam Taxa used.csv", sep = "")
     write("TAXA USED FOR EACH ECOLOGICAL VARIABLE USING VANDAM's CLASSIFICATION",
           file = file.path(resultsPath,vandamtaxafile))
     write("These taxa were included because: ", file = file.path(resultsPath,vandamtaxafile), append = TRUE)

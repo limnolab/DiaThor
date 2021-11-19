@@ -5,9 +5,7 @@
 \name{idch}
 \alias{idch}
 \title{ID-CH}
-\format{
-A data frame with the ecological values for 550 species
-}
+\format{A data frame with the ecological values for 550 species}
 \source{
 \url{https://www.bafu.admin.ch/bafu/fr/home/themes/eaux/publications/publications-eaux/methodes-analyse-appreciation-cours-eau-diatomees.html}
 }

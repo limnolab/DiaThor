@@ -5,9 +5,7 @@
 \name{cemfgs_rb}
 \alias{cemfgs_rb}
 \title{CEMFGS_RB}
-\format{
-A data frame with the ecological values for 495 species
-}
+\format{A data frame with the ecological values for 495 species}
 \source{
 \url{https://www.sciencedirect.com/science/article/abs/pii/S1470160X1730420X}
 }

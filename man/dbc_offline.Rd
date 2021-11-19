@@ -5,9 +5,7 @@
 \name{dbc_offline}
 \alias{dbc_offline}
 \title{DBC (offline)}
-\format{
-A data frame with ecological and morphological information for 8066 diatoms
-}
+\format{A data frame with ecological and morphological information for 8066 diatoms}
 \source{
 \url{https://www.kmae-journal.org/articles/kmae/abs/2012/03/kmae120025/kmae120025.html}
 }
