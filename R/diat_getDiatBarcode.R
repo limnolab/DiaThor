@@ -33,27 +33,27 @@ diat_getDiatBarcode <- function() {
       print("The diatom database in DiaThor is out of date")
 
       ###### THIS SECTION IS FOR THE CRAN PROJECT ONLY
-      # print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
-      # print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021")
-      # dbc <- diathor::dbc_offline
+      print("The CRAN version of the package does not auto-update the internal database. But the GitHub version does!")
+      print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021")
+      dbc <- diathor::dbc_offline
       ###### END OF CRAN VERSION
 
       ###### THIS SECTION IS FOR THE GITHUB PROJECT ONLY
-       print("Attempting to download diat.barcode from website")
+      #  print("Attempting to download diat.barcode from website")
+      # #
+      #  #try to get the updated package
+      #  tryCatch(
+      #    {
+      #     dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
+      #      print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
+      #    },
+      #    error = function(cond){
+      #      print("Latest version of Diat.barcode cannot be downloaded")
+      #      print("Using internal database, Diat.barcode v.10.1 published on 25-06-2021. It might need to be updated")
+      #      dbc <- diathor::dbc_offline
       #
-       #try to get the updated package
-       tryCatch(
-         {
-          dbc <- diatbarcode::get_diatbarcode(version = "last") #loads the latest version of diat.barcode
-           print("Latest version of Diat.barcode succesfully downloaded. Remember to credit accordingly!")
-         },
-         error = function(cond){
-           print("Latest version of Diat.barcode cannot be downloaded")
-           print("Using internal database, Diat.barcode v.10.1 published on 25-06-2021. It might need to be updated")
-           dbc <- diathor::dbc_offline
-      
-         }
-       )
+      #    }
+      #  )
       ###### END OF GITHUB VERSION
 
     }

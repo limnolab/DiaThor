@@ -20,11 +20,11 @@
 #' A second dialog box will help set up an Output folder, where all outputs from the package will be exported to (dataframes, CSV files, plots in PDF)
 #' The package also downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 #' \itemize{
-#' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès. 2018. "Diat.barcode, an open-access barcode library for diatoms". Scientific Reports,9, 15116. https://doi.org/10.15454/TOMBYZ
+#' \item Rimet, Frederic; Gusev, Evgenuy; Kahlert, Maria; Kelly, Martyn; Kulikovskiy, Maxim; Maltsev, Yevhen; Mann, David; Pfannkuchen, Martin; Trobajo, Rosa; Vasselon, Valentin; Zimmermann, Jonas; Bouchez, Agnès. 2018. "Diat.barcode, an open-access barcode library for diatoms". Scientific Reports,9, 15116. https://doi:10.15454/TOMBYZ
 #' }
 #' Sample data in the examples is taken from:
 #' \itemize{
-#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
+#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi:10.1016/j.ecolind.2019.105951
 #' }
 #' @examples
 #' \donttest{
@@ -197,7 +197,7 @@ diaThorAll <- function(species_df, isRelAb=FALSE, maxDistTaxa = 2, resultsPath, 
     sampleCol <- rep(sampleNames, ncol(result)) #gets sample names
     result <- tidyr::gather(result) #uses tidyr to rearrange the dataframe in a single column
     result$sampleCol <- sampleCol #adds another column with the sample names
-    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D", "#6EE2FF", "#F7C530", "#95CC5E", "#D0DFE6", "#F79D1E", "#748AA6", "#82451c", "#4b7751", "#5fa413", "#800080", "#690341" )
+    colors <- c("#CC1C00", "#5C88DA", "#84BD00", "#FFCD00", "#7C878E", "#E64B35", "#4DBBD5", "#01A087", "#3C5488", "#F39B7F", "#FF410D", "#6EE2FF", "#F7C530", "#95CC5E", "#D0DFE6", "#F79D1E", "#748AA6", "#82451c", "#4b7751", "#5fa413", "#800080", "#690341", "#ff7f7f", "#008080", "#00a0ff", "#fff000", "#0000ff", "#714d5b", "#bf9424", "#c1aea0", "#3e4c4f")
     key <- result$key
     value <- result$value
     print(ggplot2::ggplot(result, aes(fill=key, y=value, x=sampleCol)) +

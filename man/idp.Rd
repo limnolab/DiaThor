@@ -5,7 +5,9 @@
 \name{idp}
 \alias{idp}
 \title{IDP}
-\format{A data frame with the ecological values for 475 species}
+\format{
+A data frame with the ecological values for 475 species
+}
 \source{
 \url{https://link.springer.com/article/10.1023/A:1011415209445}
 }

@@ -5,7 +5,9 @@
 \name{taxaList}
 \alias{taxaList}
 \title{taxaList}
-\format{A data frame with names of 9806 taxa}
+\format{
+A data frame with names of 9806 taxa
+}
 \usage{
 data(taxaList)
 }

@@ -5,7 +5,9 @@
 \name{sla}
 \alias{sla}
 \title{SLA}
-\format{A data frame with the ecological values for 976 species}
+\format{
+A data frame with the ecological values for 976 species
+}
 \source{
 \url{https://onlinelibrary.wiley.com/doi/abs/10.1002/aheh.19860140519}
 }

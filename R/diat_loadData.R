@@ -17,7 +17,7 @@
 #' }
 #' Sample data in the examples is taken from:
 #' \itemize{
-#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi.org/10.1016/j.ecolind.2019.105951
+#' \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951. https://doi:10.1016/j.ecolind.2019.105951
 #' }
 #' @keywords ecology diatom bioindicator biotic
 #' @encoding UTF-8
@@ -183,7 +183,10 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
       if (nrow(searchvectr) > 1) { #still finds more than one with the same lower distance, creates a majority consensus for each column
         consensus_row <- matrix(nrow = 1, ncol = ncol(searchvectr))
         for (j in 1:ncol(searchvectr)){
-          consensus_row[1,j] <- names(which.max(table(searchvectr[,j])))
+          #ADDED 03.05.2023
+          if(length(names(which.max(table(searchvectr[,j]))))==0)  {consensus_row[1,j] <-""} else {
+            consensus_row[1,j] <- names(which.max(table(searchvectr[,j])))
+          }
         }
         searchvectr_names <- colnames(searchvectr)
         searchvectr <- as.data.frame(consensus_row)

@@ -5,9 +5,11 @@
 \name{ilm}
 \alias{ilm}
 \title{ILM}
-\format{A data frame with the ecological values for 667 species}
+\format{
+A data frame with the ecological values for 667 species
+}
 \source{
-\url{http://www.vliz.be/imisdocs/publications/286641.pdf}
+\url{https://www.vliz.be/imisdocs/publications/286641.pdf}
 }
 \usage{
 data(ilm)

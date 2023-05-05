@@ -5,7 +5,9 @@
 \name{spear}
 \alias{spear}
 \title{SPEAR(h)}
-\format{A data frame with the ecological values for 285 species}
+\format{
+A data frame with the ecological values for 285 species
+}
 \source{
 \url{https://www.sciencedirect.com/science/article/abs/pii/S1470160X18309683}
 }

@@ -5,7 +5,9 @@
 \name{diat_sampleData}
 \alias{diat_sampleData}
 \title{Sample Data}
-\format{A data frame with the abundance of 164 diatoms in 108 sampled sites}
+\format{
+A data frame with the abundance of 164 diatoms in 108 sampled sites
+}
 \source{
 \url{https://www.sciencedirect.com/science/article/abs/pii/S1470160X1930946X}
 }
