@@ -3,6 +3,7 @@
 \docType{package}
 \encoding{UTF-8}
 \name{diaThor}
+\alias{diathor}
 \alias{diaThor}
 \title{DiaThor: A package to calculate multiple diatom-based biotic indices}
 \description{
@@ -107,3 +108,13 @@ diat_getDiatBarcode()
 diat_taxaList()
 }
 
+\author{
+\strong{Maintainer}: Joaquin Cochero \email{jcochero@ilpla.edu.ar} (\href{https://orcid.org/0000-0003-3957-6819}{ORCID})
+
+Authors:
+\itemize{
+  \item Maria Mercedes Nicolosi Gelis \email{mercedesnicolosi@ilpla.edu.ar} (\href{https://orcid.org/0000-0001-6324-7930}{ORCID})
+  \item Maria Belen Sathicq \email{mbelen@ilpla.edu.ar} (\href{https://orcid.org/0000-0002-3534-8950}{ORCID})
+}
+
+}

@@ -130,6 +130,6 @@ Optionally, run each individual function with the results of the diat_loadData()
 
 ## CRAN vs. GitHub package
 
-The package available in the CRAN repository does not automatically update the internal diatom database from the 'Diat.Barcode' project. It uses the internal version of such database, **which is currently v.9.0 published on 14-09-2020**
+The package available in the CRAN repository does not automatically update the internal diatom database from the 'Diat.Barcode' project. It uses the internal version of such database, **which is currently v.10.1 published on 25-06-2021**
 
 The GitHub version of the package will update to the most recent database, if it is different to the current internal version.

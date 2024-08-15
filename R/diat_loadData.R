@@ -31,21 +31,43 @@
 ### folder, detailing which taxa were recognized and which were not
 
 diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath){
+  species_file <- NULL
+
   # First checks if species data frames exist. If not, loads them from CSV files
   if(missing(species_df)) {
     print("Select CSV matrices with your sample data")
     Filters <- matrix(c("Comma Separated Values (CSV)", "*.csv"),
                       1, 2, byrow = TRUE)
-    species_df <- as.data.frame(read.csv(file.choose())) #select the data matrix with a dialog box
+    species_file <- file.choose()
+    species_df <- as.data.frame(read.csv(species_file)) #select the data matrix with a dialog box
   }
 
   #Choose a Results folder
-  if(missing(resultsPath)) {
+  if(missing(resultsPath) || is.null(resultsPath)) {
     print("Select Results folder")
-    resultsPath <- choose.dir(default = "", caption = "Select folder for your Results")
-  }
+    resultsPath <- utils::choose.dir(default = "", caption = "Select folder for your Results")
+
+    # If no folder is chosen and species_df was loaded from a file, use the directory of that file
+    if(is.null(resultsPath) && !is.null(species_file))
+      resultsPath <- dirname(species_file)
+      if (!is.na(resultsPath)){
+        print(paste("No results folder chosen. Using the directory of the species file:", resultsPath))
+      } else {
+        #If still no results folder, it will create a default folder in C:/
+        resultsPath <- "C:/Diathor_Results"
+
+        # Create the default directory if it doesn't exist
+        if (!dir.exists(resultsPath)) {
+          dir.create(resultsPath, recursive = TRUE)
+        }
+        print(paste("No results folder chosen. Using the default folder:", resultsPath))
+      }
+
+    }
+
   if (is.na(resultsPath)){stop("Calculations cancelled, no folder selected")}
   print("Result folder selected")
+
 
   #Check for duplicate species
   if("species" %in% colnames(species_df)) {
@@ -102,10 +124,26 @@ diat_loadData <- function(species_df, isRelAb=FALSE, maxDistTaxa=2, resultsPath)
   species_df[is.na(species_df)] <- 0
 
 
-  ########## LINK WITH DIAT.BARCODE DATABASE (v.0.0.8)
-  getDiatBarcode <- diathor::diat_getDiatBarcode() #function that gets the Diat.Barcode database
-  ecodata <- as.data.frame(getDiatBarcode[1]) #ecodata
-  taxaList <- as.data.frame(getDiatBarcode[2]) #taxaList: diat_getDiatBarcode uses the taxaList() function to build a single list with all taxa. This is the result
+  ########## LINK WITH DIAT.BARCODE DATABASE (v.0.1.3)
+  dbc <- diathor::diat_getDiatBarcode() #function that gets the Diat.Barcode database. New version, only returns the CSV, the cleaning is done in this function now
+
+  ### Double check that the database got loaded correctly or cancel altogether
+  if (!exists("dbc") || is.null(dbc)) {
+    print("Latest version of 'Diat.barcode' unknown.")
+    print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021.")
+    dbc <- diathor::dbc_offline
+  }
+
+  ########## END LINK WITH DIAT.BARCODE DATABASE
+  # Remove duplicates by field "species" in diat.barcode
+  dbc2 <- as.data.frame(dbc[!duplicated(dbc[,"species"]),]) # Transforms dbc to a dataframe
+  ecodata <- dbc2[which(colnames(dbc2) == "species"):ncol(dbc2)] # Keeps only the "species" column onwards
+
+  # Update the internal taxa list
+  inner_taxaList <- diat_taxaList()
+  taxaList <- unique(c(inner_taxaList$species, ecodata$species))
+  taxaList <- as.data.frame(taxaList)
+  colnames(taxaList) <- "species"
 
   #Trim blank spaces from input data
   rownames(species_df) <- trimws(rownames(species_df))
