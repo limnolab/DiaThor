@@ -181,7 +181,7 @@ diat_ips <- function(resultLoad, maxDistTaxa = 2){
     newinclusionmatrix[1:nrow(inclusionmatrix),i] <- as.character(inclusionmatrix[1:nrow(inclusionmatrix),i])
   }
   #check that taxaIncluded is at least 1
-  if (length(taxaExcluded) > 0) {
+  if (length(taxaIncluded) > 0) {
     if (nrow(newinclusionmatrix) > length(taxaIncluded)){
       newinclusionmatrix[1:length(taxaIncluded), ncol(newinclusionmatrix)] <- taxaIncluded
     } else {

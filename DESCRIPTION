@@ -1,7 +1,7 @@
 Package: diathor
 Type: Package
 Title: Calculate Ecological Information and Diatom Based Indices
-Version: 0.1.3
+Version: 0.1.4
 Authors@R: c(
     person("Maria Mercedes", "Nicolosi Gelis", email = "mercedesnicolosi@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0001-6324-7930")),
     person("Maria Belen", "Sathicq", email = "mbelen@ilpla.edu.ar", role = "aut", comment = c(ORCID = "0000-0002-3534-8950")),

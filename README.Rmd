@@ -21,6 +21,15 @@ knitr::opts_chunk$set(
 
 DiaThor calculates several diatom-based indices commonly used for water quality assesment, directly from your species' data
 
+## Latest version: 0.1.4
+
+We are bypassing the connection of diaThor to the DiatBarCode project due to some URL changes in the latter. Until that is settled, this version uses the internal DiatBarCode project's database and will not update to newer versions.
+
+We also fixed some minor issues that made the diat_ips() function crash.
+
+*Thanks to Julia Siegmund & Brent Bellinger (WPD, Austin, Texas) for bringing this issues to us and helping us test the solution!*
+
+
 ## Description
 
 The package calculates multiple biotic indices using diatoms from environmental samples. Diatom species are recognized by their species' name using a heuristic search, and their ecological data is retrieved from multiple sources. 
