@@ -1,4 +1,5 @@
 #' Loads the 'Diat.Barcode' database into DiaThor in the correct format
+#' @param version_needed String. Diat.Barcode version to use or attempt to download. Default = "12.1". Use DBCversion = "last" to attempt to use the last version uploaded (experimental)
 #' @description
 #' The package downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:
 #' \itemize{
@@ -9,14 +10,12 @@
 #' @importFrom stringdist stringdist ain
 #' @export diat_getDiatBarcode
 
-diat_getDiatBarcode <- function() {
+diat_getDiatBarcode <- function(version_needed="12.1") {
 
   ########## LINK WITH DIAT.BARCODE DATABASE
   # Internal 'Diat.Barcode' version, when no internet connection is available
-  intversion <- 10.1
-
-  url <- "http://www.francoiskeck.fr/work/diatbarcode/dic_version.csv"
-
+  intversion <- 12.1
+  url <- "https://raw.githubusercontent.com/fkeck/diatbarcode/refs/heads/master/dic_version.csv"
   # Attempt to download the latest version number of 'Diat.Barcode'
   # first we check if the file exists
   file_exists <- tryCatch(
@@ -39,7 +38,7 @@ diat_getDiatBarcode <- function() {
   if(file_exists == T){
     dic <- tryCatch(
       {
-        dic <- read.csv("http://www.francoiskeck.fr/work/diatbarcode/dic_version.csv", header = TRUE, stringsAsFactors = FALSE)
+        dic <- read.csv("https://raw.githubusercontent.com/fkeck/diatbarcode/refs/heads/master/dic_version.csv", header = TRUE, stringsAsFactors = FALSE)
       },
       error = function(e) {
         print("Error occurred downloading diatbarcode")
@@ -53,12 +52,17 @@ diat_getDiatBarcode <- function() {
   if (!exists("dic")) {
     # If dic is NULL, load internal database
     print("Latest version of Diat.barcode unknown.")
-    print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021.")
+    print("Using internal database, 'Diat.barcode' v.12.1 published on 26-05-2024.")
     dbc <- diathor::dbc_offline
   } else {
     # If dic is not NULL, check the version
     version <- dic[dic$Flavor == "original",]
-    version <- version$Version[which.max(as.numeric(as.POSIXlt(version$Date, format = "%d-%m-%Y")))]
+    if (version_needed == "last"){
+      version <- version$Version[which.max(as.numeric(as.POSIXlt(version$Date, format = "%d-%m-%Y")))]
+    } else {
+      version <- version_needed
+    }
+
 
     if (version == intversion) {
       # No updates needed
@@ -70,7 +74,7 @@ diat_getDiatBarcode <- function() {
 
       ###### THIS SECTION IS FOR THE CRAN PROJECT ONLY
       # The CRAN version does not auto-update the internal database
-      # message("The CRAN version of the package does not auto-update the internal database. Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021.")
+      # message("The CRAN version of the package does not auto-update the internal database. Using internal database, 'Diat.barcode' v.12.1 published on 26-05-20241.")
       # dbc <- diathor::dbc_offline
       ###### END OF CRAN VERSION
 
@@ -80,15 +84,23 @@ diat_getDiatBarcode <- function() {
       # try to get the updated package
       dbc <- tryCatch(
         {
-          diatbarcode::get_diatbarcode(version = "last") # loads the latest version of diat.barcode
-          print("Latest version of Diat.barcode successfully downloaded. Remember to credit accordingly!")
+          if (version_needed == "last"){
+            diatbarcode::get_diatbarcode(version = "last") # loads the latest version of diat.barcode
+          } else {
+            diatbarcode::get_diatbarcode(version = version_needed) # loads the requested version of diat.barcode
+          }
+
         },
         error = function(e) {
           print("Latest version of Diat.barcode cannot be downloaded: ", e$message)
-          print("Using internal database, 'Diat.barcode' v.10.1 published on 25-06-2021. It might need to be updated.")
+          print("Using internal database, 'Diat.barcode' v.12.1 published on 26-05-2024. It might need to be updated.")
           diathor::dbc_offline
         }
+
       )
+      updated <- isTRUE(!identical(dbc, diathor::dbc_offline))
+      if (updated==T){print("Latest version of Diat.barcode successfully downloaded. Remember to credit accordingly!")}
+
       ###### END OF GITHUB VERSION
 
     }

@@ -5,7 +5,10 @@
 \alias{diat_getDiatBarcode}
 \title{Loads the 'Diat.Barcode' database into DiaThor in the correct format}
 \usage{
-diat_getDiatBarcode()
+diat_getDiatBarcode(version_needed = "12.1")
+}
+\arguments{
+\item{version_needed}{String. Diat.Barcode version to use or attempt to download. Default = "12.1". Use DBCversion = "last" to attempt to use the last version uploaded (experimental)}
 }
 \description{
 The package downloads and installs a wrapper for the 'Diat.Barcode' project. Besides citing the DiaThor package, the Diat.Barcode project should also be cited, as follows:

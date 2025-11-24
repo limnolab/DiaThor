@@ -75,6 +75,15 @@ Species tolerance and their ecological information to calculate each biotic inde
 \itemize{
 \item DISP: Stenger-Kovács, C., Körmendi, K., Lengyel, E., Abonyi, A., Hajnal, É., Szabó, B., Buczkó, K. & Padisák, J. (2018). Expanding the trait-based concept of benthic diatoms: Development of trait-and species-based indices for conductivity as the master variable of ecological status in continental saline lakes. Ecological Indicators, 95, 63-74.
 }
+\itemize{
+\item EDI: Chamorro, S., Moyón, J., Salazar, J., Chamorro, K., Vicuña, Z., Cordero, P., Bécares, E. & Blanco, S. (2024). Water Quality Monitoring in Ecuadorian Streams Using a New Diatom-Based Index. ACS ES&T Water, 4(9), 3816-3823.
+}
+\itemize{
+\item DDI: Álvarez-Blanco, I., Blanco, S., Cejudo-Figueiras, C., & Bécares, E. (2013). The Duero Diatom Index (DDI) for river water quality assessment in NW Spain: design and validation. Environmental monitoring and assessment, 185, 969-981.
+}
+\itemize{
+\item PDISE: Kahlert, M., Fölster, J., & Tapolczai, K. (2023). No lukewarm diatom communities—the response of freshwater benthic diatoms to phosphorus in streams as basis for a new phosphorus diatom index (PDISE). Environmental Monitoring and Assessment, 195(7), 807.
+}
 Sample data included in the package is taken from:
 \itemize{
 \item Nicolosi Gelis, María Mercedes; Cochero, Joaquín; Donadelli, Jorge; Gómez, Nora. 2020. "Exploring the use of nuclear alterations, motility and ecological guilds in epipelic diatoms as biomonitoring tools for water quality improvement in urban impacted lowland streams". Ecological Indicators, 110, 105951.
@@ -102,6 +111,9 @@ diat_spear()
 diat_pbidw()
 diat_disp()
 diat_idap()
+diat_edi()
+diat_ddi()
+diat_pdise()
 diat_cemfgs_rb()
 diat_checkName()
 diat_getDiatBarcode()

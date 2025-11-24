@@ -9,7 +9,19 @@
 DiaThor calculates several diatom-based indices commonly used for water
 quality assesment, directly from your species’ data
 
-## Latest version: 0.1.4
+## Latest: 0.1.6
+
+
+-Internal Diat.barcode updated to version 12.1 (published on 26-05-2024).
+-Added a parameter "DBCversion" which specifies which Diat.barcode you want to update to. Default value is "last", but it can be changed to request previous versions (e.g. diaThorAll(DBCversion="11.1") will force to work with Diat.barcode version 11.1)
+
+## Version: 0.1.5
+
+We are adding three new indices to the package: 1) the Duero Diatom Index (DDI, by Álvarez-Blanco et al. 2013); 2) the Ecuador Diatom Index (EDI, by Chamorro et al. 2024) and 3) the Swedish Phosphorus Diatom Index (PDISE, by Kahlert et al. 2023).
+
+NOTE: with the help of the authors we were only able to test these indices with sample data, not with real data from the environments where they were designed for, so tread lightly with the results. We are considering them in "beta" until more tests have been conduced.
+
+## Version: 0.1.4
 
 We are bypassing the connection of diaThor to the DiatBarCode project
 due to some URL changes in the latter. Until that is settled, this
@@ -165,7 +177,7 @@ default settings, and store the results into the “results” object, to
 also retain the output within R
 
 ``` r
-> results <- diaThorAll(diat_sampleData) #If the sample data was used
+> results <- diaThorAll(diat_sampleData, DBCversion = "12.1") #If the sample data was used, using Diat.Barcode 12.1
 ```
 
 Note: The package will request the Input file an Output folder through a
@@ -191,8 +203,8 @@ diat_loadData() function, for instance:
 
 The package available in the CRAN repository does not automatically
 update the internal diatom database from the ‘Diat.Barcode’ project. It
-uses the internal version of such database, **which is currently v.10.1
-published on 25-06-2021**
+uses the internal version of such database, **which is currently v.12.1
+published on 26-05-2024**
 
 The GitHub version of the package will update to the most recent
 database, if it is different to the current internal version.

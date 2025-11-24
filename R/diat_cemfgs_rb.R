@@ -75,51 +75,84 @@ diat_cemfgs_rb <- function(resultLoad){
   PS1 <- PS2 <- PS3 <- PS4 <- PS5 <- NULL
   CEMFGS_class_Indet <- CEMFGS_Taxa_used <- CEMFGS_RB_Indet <- NULL
 
+
+  #OBSOLETE CODE FROM V0.1.4
+  # data.table::setDT(taxaIn)
+  # cemfgs_rb.results <- suppressWarnings(data.table(
+  #   HS1 <- unlist(taxaIn[which(cemfgs_rb == "HS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                            1)]),
+  #   HS2 <- unlist(taxaIn[which(cemfgs_rb == "HS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   HS3 <- unlist(taxaIn[which(cemfgs_rb == "HS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   HS4 <- unlist(taxaIn[which(cemfgs_rb == "HS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   HS5 <- unlist(taxaIn[which(cemfgs_rb == "HS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   LS1 <- unlist(taxaIn[which(cemfgs_rb == "LS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   LS2 <- unlist(taxaIn[which(cemfgs_rb == "LS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   LS3 <- unlist(taxaIn[which(cemfgs_rb == "LS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   LS4 <- unlist(taxaIn[which(cemfgs_rb == "LS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   LS5 <- unlist(taxaIn[which(cemfgs_rb == "LS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   MS1 <- unlist(taxaIn[which(cemfgs_rb == "MS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   MS2 <- unlist(taxaIn[which(cemfgs_rb == "MS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   MS3 <- unlist(taxaIn[which(cemfgs_rb == "MS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   MS4 <- unlist(taxaIn[which(cemfgs_rb == "MS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   MS5 <- unlist(taxaIn[which(cemfgs_rb == "MS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   PS1 <- unlist(taxaIn[which(cemfgs_rb == "PS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   PS2 <- unlist(taxaIn[which(cemfgs_rb == "PS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   PS3 <- unlist(taxaIn[which(cemfgs_rb == "PS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   PS4 <- unlist(taxaIn[which(cemfgs_rb == "PS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)]),
+  #   PS5 <- unlist(taxaIn[which(cemfgs_rb == "PS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
+  #                                                                                                 1)])
+  # ))
+  #
+  #
+
+  ### NEW CODE FROM V0.1.5 ONWARDS
   data.table::setDT(taxaIn)
 
-  cemfgs_rb.results <- suppressWarnings(data.table(
-    HS1 = unlist(taxaIn[which(cemfgs_rb == "HS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                             1)]),
-    HS2 = unlist(taxaIn[which(cemfgs_rb == "HS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    HS3 = unlist(taxaIn[which(cemfgs_rb == "HS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    HS4 = unlist(taxaIn[which(cemfgs_rb == "HS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    HS5 = unlist(taxaIn[which(cemfgs_rb == "HS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    LS1 = unlist(taxaIn[which(cemfgs_rb == "LS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    LS2 = unlist(taxaIn[which(cemfgs_rb == "LS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    LS3 = unlist(taxaIn[which(cemfgs_rb == "LS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    LS4 = unlist(taxaIn[which(cemfgs_rb == "LS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    LS5 = unlist(taxaIn[which(cemfgs_rb == "LS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    MS1 = unlist(taxaIn[which(cemfgs_rb == "MS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    MS2 = unlist(taxaIn[which(cemfgs_rb == "MS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    MS3 = unlist(taxaIn[which(cemfgs_rb == "MS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    MS4 = unlist(taxaIn[which(cemfgs_rb == "MS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    MS5 = unlist(taxaIn[which(cemfgs_rb == "MS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    PS1 = unlist(taxaIn[which(cemfgs_rb == "PS1"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    PS2 = unlist(taxaIn[which(cemfgs_rb == "PS2"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    PS3 = unlist(taxaIn[which(cemfgs_rb == "PS3"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    PS4 = unlist(taxaIn[which(cemfgs_rb == "PS4"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)]),
-    PS5 = unlist(taxaIn[which(cemfgs_rb == "PS5"), lapply(.SD, sum, na.rm = TRUE), .SDcols = 1:(lastcol -
-                                                                                                  1)])
-  ))
-  #replace NAs for 0
+  # Define the groups
+  groups <- c("HS1", "HS2", "HS3", "HS4", "HS5",
+              "LS1", "LS2", "LS3", "LS4", "LS5",
+              "MS1", "MS2", "MS3", "MS4", "MS5",
+              "PS1", "PS2", "PS3", "PS4", "PS5")
+
+  # Initialize an empty data.table
+  cemfgs_rb.results <- data.table(matrix(0, nrow = (lastcol - 1), ncol = length(groups)))
+
+  # Add column names
+  setnames(cemfgs_rb.results, groups)
+
+  # Calculate sums and add to results
+  for (group in groups) {
+    group_data <- taxaIn[cemfgs_rb == group,
+                         lapply(.SD, sum, na.rm = TRUE),
+                         .SDcols = 1:(lastcol - 1)]
+
+    if (nrow(group_data) > 0) {
+      cemfgs_rb.results[[group]] <- unlist(group_data)
+    }
+  }
+
+
+  #### END NEW VERSION
+
+    #replace NAs for 0
   cemfgs_rb.results[is.na(cemfgs_rb.results)] = 0
   cemfgs_rb.results[, `CEMFGS_RB_Indet` := round(100 - ( HS1 + HS2 + HS3 + HS4 + HS5 + LS1 + LS2 + LS3 + LS4 + LS5 + MS1 + MS2 + MS3 + MS4 + MS5 + PS1 + PS2 + PS3 + PS4 + PS5), 1)]
 
